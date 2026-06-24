@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardioPredict — Heart Disease Risk Assessment</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="logo-name">CardioPredict</span>
+          <span class="logo-sub">Clinical Decision Support</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        Research Prototype · Group 42
+      </div>
+    </div>
+  </header>
+
+  <!-- ── HERO  -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-label">AI-Powered Cardiac Screening</div>
+        <h1 class="hero-title">Heart Disease<br/>Risk Assessment</h1>
+        <p class="hero-desc">
+          Enter the patient's clinical parameters below to receive an
+          instant machine learning prediction of heart disease risk,
+          powered by the UCI Cleveland dataset benchmark model.
+        </p>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-num">303</span>
+            <span class="stat-label">Training Records</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-num">4</span>
+            <span class="stat-label">ML Models Compared</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-num">10-Fold</span>
+            <span class="stat-label">Cross-Validation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- heart image -->
+     <div class="">
+      <img src="/assets/heart_image.png" alt="heart image ">
+     </div>
+  </section>
+
+  <!-- ── MAIN FORM ───────────────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="container">
+      <form id="prediction-form" action="/predict" method="POST">
+
+        <!-- Section 1: Demographics -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-icon section-icon--blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <h2 class="section-title">Demographics &amp; Vitals</h2>
+              <p class="section-desc">Basic patient information and vital measurements</p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--4">
+            <div class="field">
+              <label class="label" for="age">Age <span class="unit">years</span></label>
+              <input class="input" type="number" id="age" name="age" min="20" max="90" placeholder="e.g. 54" required />
+            </div>
+
+            <div class="field">
+              <label class="label" for="sex">Biological Sex</label>
+              <select class="select" id="sex" name="sex" required>
+                <option value="" disabled selected>Select</option>
+                <option value="1">Male</option>
+                <option value="0">Female</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="trestbps">Resting BP <span class="unit">mm Hg</span></label>
+              <input class="input" type="number" id="trestbps" name="trestbps" min="80" max="220" placeholder="e.g. 130" required />
+            </div>
+
+            <div class="field">
+              <label class="label" for="thalach">Max Heart Rate <span class="unit">bpm</span></label>
+              <input class="input" type="number" id="thalach" name="thalach" min="60" max="220" placeholder="e.g. 150" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Symptoms & Lab -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-icon section-icon--teal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+            </div>
+            <div>
+              <h2 class="section-title">Symptoms &amp; Lab Results</h2>
+              <p class="section-desc">Clinical symptoms and laboratory investigation values</p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--3">
+            <div class="field">
+              <label class="label" for="cp">Chest Pain Type</label>
+              <select class="select" id="cp" name="cp" required>
+                <option value="" disabled selected>Select type</option>
+                <option value="1">Typical Angina</option>
+                <option value="2">Atypical Angina</option>
+                <option value="3">Non-Anginal Pain</option>
+                <option value="4">Asymptomatic</option>
+              </select>
+              <span class="field-hint">Nature of chest pain reported</span>
+            </div>
+
+            <div class="field">
+              <label class="label" for="chol">Serum Cholesterol <span class="unit">mg/dl</span></label>
+              <input class="input" type="number" id="chol" name="chol" min="100" max="600" placeholder="e.g. 200" required />
+            </div>
+
+            <div class="field">
+              <label class="label" for="fbs">Fasting Blood Sugar</label>
+              <select class="select" id="fbs" name="fbs" required>
+                <option value="" disabled selected>Select</option>
+                <option value="1">Above 120 mg/dl (Yes)</option>
+                <option value="0">120 mg/dl or below (No)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="exang">Exercise-Induced Angina</label>
+              <select class="select" id="exang" name="exang" required>
+                <option value="" disabled selected>Select</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="oldpeak">ST Depression <span class="unit">oldpeak</span></label>
+              <input class="input" type="number" id="oldpeak" name="oldpeak" step="0.1" min="0" max="7" placeholder="e.g. 1.0" required />
+              <span class="field-hint">Induced by exercise relative to rest</span>
+            </div>
+
+            <div class="field">
+              <label class="label" for="slope">ST Segment Slope</label>
+              <select class="select" id="slope" name="slope" required>
+                <option value="" disabled selected>Select</option>
+                <option value="1">Upsloping</option>
+                <option value="2">Flat</option>
+                <option value="3">Downsloping</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: ECG & Imaging -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-icon section-icon--purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <h2 class="section-title">ECG &amp; Imaging Results</h2>
+              <p class="section-desc">Electrocardiogram and fluoroscopy investigation results</p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--3">
+            <div class="field">
+              <label class="label" for="restecg">Resting ECG Result</label>
+              <select class="select" id="restecg" name="restecg" required>
+                <option value="" disabled selected>Select result</option>
+                <option value="0">Normal</option>
+                <option value="1">ST-T Wave Abnormality</option>
+                <option value="2">LV Hypertrophy</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="ca">Major Vessels Coloured <span class="unit">0–3</span></label>
+              <select class="select" id="ca" name="ca" required>
+                <option value="" disabled selected>Select count</option>
+                <option value="0">0 vessels</option>
+                <option value="1">1 vessel</option>
+                <option value="2">2 vessels</option>
+                <option value="3">3 vessels</option>
+              </select>
+              <span class="field-hint">By fluoroscopy</span>
+            </div>
+
+            <div class="field">
+              <label class="label" for="thal">Thalassemia</label>
+              <select class="select" id="thal" name="thal" required>
+                <option value="" disabled selected>Select result</option>
+                <option value="3">Normal</option>
+                <option value="6">Fixed Defect</option>
+                <option value="7">Reversible Defect</option>
+              </select>
+              <span class="field-hint">Nuclear stress test result</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-wrap">
+          <button type="submit" class="btn-predict" id="submit-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analyse Heart Disease Risk
+          </button>
+          <p class="submit-note">All fields are required · Results appear below</p>
+        </div>
+
+      </form>
+
+      <!-- ── RESULT CARD ──────────────────────────────────────────────────── -->
+      <div id="result-card" class="result-card result-card--hidden">
+
+        <div id="result-high" class="result-banner result-banner--high">
+          <div class="result-banner-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="result-label">Prediction Result</div>
+            <div class="result-verdict">High Risk of Heart Disease</div>
+          </div>
+        </div>
+
+        <div id="result-low" class="result-banner result-banner--low">
+          <div class="result-banner-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div>
+            <div class="result-label">Prediction Result</div>
+            <div class="result-verdict">Low Risk of Heart Disease</div>
+          </div>
+        </div>
+
+        <div class="result-body">
+          <div class="prob-wrap">
+            <div class="prob-label">Probability of Heart Disease</div>
+            <div class="prob-bar-track">
+              <div class="prob-bar-fill" id="prob-bar"></div>
+            </div>
+            <div class="prob-value" id="prob-value">—</div>
+          </div>
+
+          <div class="result-meta-grid">
+            <div class="meta-card">
+              <div class="meta-icon meta-icon--info">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div>
+                <div class="meta-title">Model Used</div>
+                <div class="meta-value">Champion Model (Best F1-Score)</div>
+              </div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-icon meta-icon--success">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div>
+                <div class="meta-title">Validation</div>
+                <div class="meta-value">10-Fold Cross-Validation</div>
+              </div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-icon meta-icon--warning">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div>
+                <div class="meta-title">Dataset</div>
+                <div class="meta-value">UCI Cleveland (303 records)</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="advice-high" class="advice advice--high">
+            <strong>Clinical Recommendation:</strong> This patient's clinical parameters indicate elevated cardiovascular risk markers. It is strongly recommended to refer this patient to a cardiologist for further evaluation and diagnostic testing.
+          </div>
+
+          <div id="advice-low" class="advice advice--low">
+            <strong>Clinical Recommendation:</strong> No significant indicators of heart disease were detected based on the provided parameters. It is advised to maintain regular health check-ups and encourage a healthy lifestyle to sustain cardiovascular health.
+          </div>
+
+          <div class="disclaimer">
+            ⚕️ This tool is developed for academic research purposes only (Group 42 Final Year Project). It does not constitute medical advice and must not replace professional clinical diagnosis or physician evaluation.
+          </div>
+
+          <button class="btn-reset" onclick="resetForm()">
+            ← Assess Another Patient
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>CardioPredict · Group 42 Final Year Project · BSc Computer Science</p>
+      <p>Built with Python · Flask · Scikit-Learn · UCI Cleveland Heart Disease Dataset</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
