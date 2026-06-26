@@ -110,3 +110,38 @@ function resetForm() {
   document.getElementById('prob-bar').style.width = '0%';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// counter state 
+
+// ── Counter animation for hero stats ─────────────────────────────────────
+function animateCounter(element, target, duration, suffix) {
+  let start = 0;
+  const step = target / (duration / 16);
+
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) {
+      start = target;
+      clearInterval(timer);
+    }
+    element.textContent = Math.floor(start) + (suffix || '');
+  }, 16);
+}
+
+function startCounters() {
+  const counters = document.querySelectorAll('.stat-num');
+  counters.forEach(counter => {
+    const target  = counter.getAttribute('data-target');
+    const suffix  = counter.getAttribute('data-suffix') || '';
+    const duration = 2000;
+    if (target) {
+      counter.textContent = '0' + suffix;
+      animateCounter(counter, parseInt(target), duration, suffix);
+    }
+  });
+}
+
+// Start counting when page loads
+window.addEventListener('load', () => {
+  setTimeout(startCounters, 300);
+});

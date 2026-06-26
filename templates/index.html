@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CardioPredict — Heart Disease Risk Assessment</title>
+  <title> Heart Disease Risk Assessment</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
@@ -14,12 +14,12 @@
     <div class="header-inner">
       <div class="logo">
         <div class="logo-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="heart image" class="logo_image">
+          
           </svg>
         </div>
         <div>
-          <span class="logo-name">CardioPredict</span>
+          <span class="logo-name">HeartPredict</span>
           <span class="logo-sub">Clinical Decision Support</span>
         </div>
       </div>
@@ -30,9 +30,11 @@
     </div>
   </header>
 
-  <!-- ── HERO  -->
+  <!-- ── HERO ───────────────────────────────────────────────────────────── -->
   <section class="hero">
-    <div class="container">
+    <div class="hero-inner">
+
+      <!-- Left: text content -->
       <div class="hero-content">
         <div class="hero-label">AI-Powered Cardiac Screening</div>
         <h1 class="hero-title">Heart Disease<br/>Risk Assessment</h1>
@@ -41,33 +43,38 @@
           instant machine learning prediction of heart disease risk,
           powered by the UCI Cleveland dataset benchmark model.
         </p>
-        <div class="hero-stats">
+            <div class="hero-stats">
           <div class="stat">
-            <span class="stat-num">303</span>
+            <span class="stat-num" data-target="303">0</span>
             <span class="stat-label">Training Records</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-num">4</span>
+            <span class="stat-num" data-target="4">0</span>
             <span class="stat-label">ML Models Compared</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-num">10-Fold</span>
+            <span class="stat-num" data-target="10" data-suffix="-Fold">0</span>
             <span class="stat-label">Cross-Validation</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- heart image -->
-     <div class="">
-      <img src="/assets/heart_image.png" alt="heart image ">
-     </div>
+      <!-- Right: heart image -->
+      <div class="image_container">
+        <img src="{{ url_for('static', filename='images/heart.png') }}" alt="heart image">
+      </div>
+
+    </div>
   </section>
 
   <!-- ── MAIN FORM ───────────────────────────────────────────────────────── -->
   <main class="main">
+
+    <!-- Particles background -->
+    <div id="particles-bg"></div>
+
     <div class="container">
       <form id="prediction-form" action="/predict" method="POST">
 
@@ -88,7 +95,6 @@
               <label class="label" for="age">Age <span class="unit">years</span></label>
               <input class="input" type="number" id="age" name="age" min="20" max="90" placeholder="e.g. 54" required />
             </div>
-
             <div class="field">
               <label class="label" for="sex">Biological Sex</label>
               <select class="select" id="sex" name="sex" required>
@@ -97,12 +103,10 @@
                 <option value="0">Female</option>
               </select>
             </div>
-
             <div class="field">
               <label class="label" for="trestbps">Resting BP <span class="unit">mm Hg</span></label>
               <input class="input" type="number" id="trestbps" name="trestbps" min="80" max="220" placeholder="e.g. 130" required />
             </div>
-
             <div class="field">
               <label class="label" for="thalach">Max Heart Rate <span class="unit">bpm</span></label>
               <input class="input" type="number" id="thalach" name="thalach" min="60" max="220" placeholder="e.g. 150" required />
@@ -134,12 +138,10 @@
               </select>
               <span class="field-hint">Nature of chest pain reported</span>
             </div>
-
             <div class="field">
               <label class="label" for="chol">Serum Cholesterol <span class="unit">mg/dl</span></label>
               <input class="input" type="number" id="chol" name="chol" min="100" max="600" placeholder="e.g. 200" required />
             </div>
-
             <div class="field">
               <label class="label" for="fbs">Fasting Blood Sugar</label>
               <select class="select" id="fbs" name="fbs" required>
@@ -148,7 +150,6 @@
                 <option value="0">120 mg/dl or below (No)</option>
               </select>
             </div>
-
             <div class="field">
               <label class="label" for="exang">Exercise-Induced Angina</label>
               <select class="select" id="exang" name="exang" required>
@@ -157,13 +158,11 @@
                 <option value="0">No</option>
               </select>
             </div>
-
             <div class="field">
               <label class="label" for="oldpeak">ST Depression <span class="unit">oldpeak</span></label>
               <input class="input" type="number" id="oldpeak" name="oldpeak" step="0.1" min="0" max="7" placeholder="e.g. 1.0" required />
               <span class="field-hint">Induced by exercise relative to rest</span>
             </div>
-
             <div class="field">
               <label class="label" for="slope">ST Segment Slope</label>
               <select class="select" id="slope" name="slope" required>
@@ -198,7 +197,6 @@
                 <option value="2">LV Hypertrophy</option>
               </select>
             </div>
-
             <div class="field">
               <label class="label" for="ca">Major Vessels Coloured <span class="unit">0–3</span></label>
               <select class="select" id="ca" name="ca" required>
@@ -210,7 +208,6 @@
               </select>
               <span class="field-hint">By fluoroscopy</span>
             </div>
-
             <div class="field">
               <label class="label" for="thal">Thalassemia</label>
               <select class="select" id="thal" name="thal" required>
@@ -327,5 +324,49 @@
   </footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <!-- ── Particles.js ───────────────────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS('particles-bg', {
+      particles: {
+        number: { value: 70, density: { enable: true, value_area: 800 } },
+        color: { value: "#E74C3C" },
+        shape: { type: "circle" },
+        opacity: { value: 0.4, random: true },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#4A9EDB",
+          opacity: 0.7,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 1.5,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "push" },
+          resize: true
+        },
+        modes: {
+          grab: { distance: 140, line_linked: { opacity: 0.5 } },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+
 </body>
 </html>
