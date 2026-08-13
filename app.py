@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-# ── Load model, scaler, and feature columns ───────────
+# Load model, scaler, and feature columns 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 model    = joblib.load(os.path.join(BASE_DIR, 'heart_disease_model.pkl'))
 scaler   = joblib.load(os.path.join(BASE_DIR, 'scaler.pkl'))
@@ -37,7 +37,24 @@ def predict():
         ca       = float(data['ca'])
         thal     = float(data['thal'])
 
-        # ── Feature engineering (must match notebook) ────────────────────────
+        # ── Input validation 
+        errors = []
+
+        if not (20 <= age <= 90):
+            errors.append("Age must be between 20 and 90")
+        if not (80 <= trestbps <= 220):
+            errors.append("Resting BP must be between 80 and 220")
+        if not (100 <= chol <= 600):
+            errors.append("Cholesterol must be between 100 and 600")
+        if not (60 <= thalach <= 220):
+            errors.append("Max Heart Rate must be between 60 and 220")
+        if not (0.0 <= oldpeak <= 7.0):
+            errors.append("ST Depression must be between 0.0 and 7.0")
+
+        if errors:
+            return jsonify({'error': ' | '.join(errors)}), 400
+
+        # ── Feature engineering 
         age_group = 0 if age < 40 else (1 if age <= 55 else 2)
         high_chol = 1 if chol > 240 else 0
         hr_ratio  = thalach / (220 - age)
@@ -48,10 +65,10 @@ def predict():
             slope, ca, thal, age_group, high_chol, hr_ratio
         ]], columns=features)
 
-        # ── Scale continuous features ─────────────────────────────────────────
+        # ── Scale continuous features 
         raw[CONTINUOUS] = scaler.transform(raw[CONTINUOUS])
 
-        # ── Predict ───────────────────────────────────────────────────────────
+        # ── Predict ──
         pred = model.predict(raw)[0]
         prob = model.predict_proba(raw)[0][1]
 
