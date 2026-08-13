@@ -129,8 +129,8 @@ body {
 .badge-dot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
-  background: #22C55E;
+  border-radius: 40%;
+  background: #ca0303;
   animation: pulse 2s infinite;
 }
 
