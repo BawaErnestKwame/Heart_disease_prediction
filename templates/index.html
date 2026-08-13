@@ -36,7 +36,10 @@
 
       <!-- Left: text content -->
       <div class="hero-content">
-        <div class="hero-label">AI-Powered Cardiac Screening</div>
+        <div class="hero-label">
+          UCI Cleveland Heart Disease Dataset
+          <!-- AI-Powered Cardiac Screening -->
+        </div>
         <h1 class="hero-title">Heart Disease<br/>Risk Assessment</h1>
         <p class="hero-desc">
           Enter the patient's clinical parameters below to receive an
@@ -93,7 +96,7 @@
           <div class="form-grid form-grid--4">
             <div class="field">
               <label class="label" for="age">Age <span class="unit">years</span></label>
-              <input class="input" type="number" id="age" name="age" min="20" max="90" placeholder="Age" required /><input class="input" type="number" id="age" name="age"
+             <input class="input" type="number" id="age" name="age"
               min="29" max="77" placeholder="Enter value between 29 - 77" required />
 
             </div>
@@ -318,13 +321,13 @@
     </div>
   </main>
 
-  <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
-  <footer class="footer">
-    <div class="container">
-      <p>CardioPredict · Group 42 Final Year Project · BSc Computer Science</p>
-      <p> UCI Cleveland Heart Disease Dataset</p>
-    </div>
-  </footer>
+<!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <p> Group 42 Final Year Project · BSc Computer Science</p>
+    <p>&copy; 2026 CardioPredict. All Rights Reserved.</p>
+  </div>
+</footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
