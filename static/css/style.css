@@ -228,7 +228,7 @@ body {
   margin-bottom: 14px;
   background: rgba(255,255,255,0.1);
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 0px;
   border: 1px solid rgba(255,255,255,0.15);
 }
 
@@ -435,7 +435,7 @@ body {
   line-height: 1.4;
 }
 
-/* ── Submit ───────────────────────────────────────────────────────────────── */
+/* ── Submit  */
 .submit-wrap {
   display: flex;
   flex-direction: column;
@@ -579,7 +579,7 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* ── Meta Cards ───────────────────────────────────────────────────────────── */
+/*  Meta Cards  */
 .result-meta-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
