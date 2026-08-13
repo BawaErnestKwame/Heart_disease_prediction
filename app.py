@@ -40,16 +40,19 @@ def predict():
         # ── Input validation 
         errors = []
 
-        if not (20 <= age <= 90):
-            errors.append("Age must be between 20 and 90")
-        if not (80 <= trestbps <= 220):
-            errors.append("Resting BP must be between 80 and 220")
-        if not (100 <= chol <= 600):
-            errors.append("Cholesterol must be between 100 and 600")
-        if not (60 <= thalach <= 220):
-            errors.append("Max Heart Rate must be between 60 and 220")
-        if not (0.0 <= oldpeak <= 7.0):
-            errors.append("ST Depression must be between 0.0 and 7.0")
+       # ── Input validation ─────────────────────────────────────────────────────
+        errors = []
+
+        if not (29 <= age <= 77):
+            errors.append("Age must be between 29 and 77")
+        if not (94 <= trestbps <= 200):
+            errors.append("Resting BP must be between 94 and 200")
+        if not (126 <= chol <= 564):
+            errors.append("Cholesterol must be between 126 and 564")
+        if not (71 <= thalach <= 202):
+            errors.append("Max Heart Rate must be between 71 and 202")
+        if not (0.0 <= oldpeak <= 6.2):
+            errors.append("ST Depression must be between 0.0 and 6.2")
 
         if errors:
             return jsonify({'error': ' | '.join(errors)}), 400
