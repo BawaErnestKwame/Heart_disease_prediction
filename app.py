@@ -43,20 +43,21 @@ def predict():
        # ── Input validation ─────────────────────────────────────────────────────
         errors = []
 
-        if not (29 <= age <= 77):
-            errors.append("Age must be between 29 and 77")
-        if not (94 <= trestbps <= 200):
-            errors.append("Resting BP must be between 94 and 200")
-        if not (126 <= chol <= 564):
-            errors.append("Cholesterol must be between 126 and 564")
-        if not (71 <= thalach <= 202):
-            errors.append("Max Heart Rate must be between 71 and 202")
-        if not (0.0 <= oldpeak <= 6.2):
-            errors.append("ST Depression must be between 0.0 and 6.2")
+        ierrors = []
+
+        if not (1 <= age <= 120):
+            errors.append("Age must be between 1 and 120")
+        if not (1 <= trestbps <= 300):
+            errors.append("Resting BP must be between 1 and 300")
+        if not (1 <= chol <= 700):
+            errors.append("Cholesterol must be between 1 and 700")
+        if not (1 <= thalach <= 300):
+            errors.append("Max Heart Rate must be between 1 and 300")
+        if not (0.0 <= oldpeak <= 10.0):
+            errors.append("ST Depression must be between 0.0 and 10.0")
 
         if errors:
-            return jsonify({'error': ' | '.join(errors)}), 400
-
+         return jsonify({'error': ' | '.join(errors)}), 400
         # ── Feature engineering 
         age_group = 0 if age < 40 else (1 if age <= 55 else 2)
         high_chol = 1 if chol > 240 else 0

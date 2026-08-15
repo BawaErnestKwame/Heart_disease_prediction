@@ -97,7 +97,8 @@
             <div class="field">
               <label class="label" for="age">Age <span class="unit">years</span></label>
              <input class="input" type="number" id="age" name="age"
-              min="29" max="77" placeholder="Enter value between 29 - 77" required />
+              min="1" max="120" placeholder="Enter patient age" required />
+
 
             </div>
             <div class="field">
@@ -111,13 +112,14 @@
             <div class="field">
               <label class="label" for="trestbps">Resting BP <span class="unit">mm Hg</span></label>
               <input class="input" type="number" id="trestbps" name="trestbps"
-              min="94" max="200" placeholder="Enter value between 94 - 200" required />
+              min="1" max="300" placeholder="Enter resting blood pressure" required />
+
                           </div>
             <div class="field">
               <label class="label" for="thalach">Max Heart Rate <span class="unit">bpm</span></label>
               <input class="input" type="number" id="thalach" name="thalach"
-              min="71" max="202" placeholder="Enter value between 71 - 202" required />
-              </div>
+                min="1" max="300" placeholder="Enter maximum heart rate" required />
+                </div>
           </div>
         </div>
 
@@ -148,7 +150,8 @@
             <div class="field">
               <label class="label" for="chol">Cholesterol <span class="unit">mg/dl</span></label>
               <input class="input" type="number" id="chol" name="chol"
-              min="126" max="564" placeholder="Enter value between 126 - 564" required />
+                min="1" max="700" placeholder="Enter serum cholesterol" required />
+
               </div>
             <div class="field">
               <label class="label" for="fbs">Fasting Blood Sugar</label>
@@ -169,9 +172,8 @@
             <div class="field">
               <label class="label" for="oldpeak">ST Depression <span class="unit">oldpeak</span></label>
               <input class="input" type="number" id="oldpeak" name="oldpeak"
-              step="0.1" min="0" max="6.2" placeholder="Enter value between 0.0 - 6.2" required />
-               <span class="field-hint">Induced by exercise relative to rest</span>
-            </div>
+                  step="0.1" min="0" max="10" placeholder="Enter ST depression value" required />
+              </div>
             <div class="field">
               <label class="label" for="slope">ST Segment Slope</label>
               <select class="select" id="slope" name="slope" required>
@@ -373,6 +375,7 @@
       retina_detect: true
     });
   </script>
-
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
 </body>
 </html>
