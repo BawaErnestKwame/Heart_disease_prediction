@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title> Heart Disease Risk Assessment</title>
+  <title>HeartPredict — Heart Disease Risk Assessment</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- jsPDF for PDF download -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -14,18 +17,21 @@
     <div class="header-inner">
       <div class="logo">
         <div class="logo-icon">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="heart image" class="logo_image">
-          
-          </svg>
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="logo" class="logo_image">
         </div>
         <div>
           <span class="logo-name">HeartPredict</span>
           <span class="logo-sub">Clinical Decision Support</span>
         </div>
       </div>
-      <div class="header-badge">
-        <span class="badge-dot"></span>
-        Research Prototype
+      <div class="header-right">
+        <button class="btn-history-toggle" onclick="toggleHistory()" title="View History">
+          <i class="fa-solid fa-clock-rotate-left"></i> History
+        </button>
+        <div class="header-badge">
+          <span class="badge-dot"></span>
+          Research Prototype
+        </div>
       </div>
     </div>
   </header>
@@ -33,20 +39,15 @@
   <!-- ── HERO ───────────────────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero-inner">
-
-      <!-- Left: text content -->
       <div class="hero-content">
-        <div class="hero-label">
-          UCI Cleveland Heart Disease Dataset
-          <!-- AI-Powered Cardiac Screening -->
-        </div>
+        <div class="hero-label">UCI Cleveland Heart Disease Dataset</div>
         <h1 class="hero-title">Heart Disease<br/>Risk Assessment</h1>
         <p class="hero-desc">
           Enter the patient's clinical parameters below to receive an
           instant machine learning prediction of heart disease risk,
           powered by the UCI Cleveland dataset benchmark model.
         </p>
-            <div class="hero-stats">
+        <div class="hero-stats">
           <div class="stat">
             <span class="stat-num" data-target="303">0</span>
             <span class="stat-label">Training Records</span>
@@ -63,277 +64,563 @@
           </div>
         </div>
       </div>
-
-      <!-- Right: heart image -->
       <div class="image_container">
         <img src="{{ url_for('static', filename='images/heart.png') }}" alt="heart image">
       </div>
-
     </div>
   </section>
 
-  <!-- ── MAIN FORM ───────────────────────────────────────────────────────── -->
+  <!-- ── TAB SWITCHER ───────────────────────────────────────────────────── -->
+  <div class="tab-switcher">
+    <div class="tab-inner">
+      <button class="tab-btn tab-btn--active" id="tab-single" onclick="switchTab('single')">
+        <i class="fa-solid fa-user-doctor"></i>
+        Single Patient
+      </button>
+      <button class="tab-btn" id="tab-bulk" onclick="switchTab('bulk')">
+        <i class="fa-solid fa-users"></i>
+        Multiple Patients
+      </button>
+    </div>
+  </div>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────────────── -->
   <main class="main">
-
-    <!-- Particles background -->
     <div id="particles-bg"></div>
-
     <div class="container">
-      <form id="prediction-form" action="/predict" method="POST">
 
-        <!-- Section 1: Demographics -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-icon section-icon--blue">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <!-- ══ SINGLE PATIENT TAB ════════════════════════════════════════════ -->
+      <div id="single-tab-content">
+
+        <form id="prediction-form" action="/predict" method="POST">
+
+          <!-- Patient Name -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon section-icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">Patient Information</h2>
+                <p class="section-desc">Enter the patient's name for personalised results and record keeping</p>
+              </div>
             </div>
-            <div>
-              <h2 class="section-title">Demographics &amp; Vitals</h2>
-              <p class="section-desc">Basic patient information and vital measurements</p>
+            <div class="form-grid form-grid--1">
+              <div class="field">
+                <label class="label" for="patient_name">First Name</label>
+                <input class="input" type="text" id="patient_name" name="patient_name"
+                  placeholder="" required />
+              </div>
+              <div class="field">
+                <label class="label" for="patient_name">Second Name</label>
+                <input class="input" type="text" id="patient_name" name="patient_name"
+                  placeholder="" required />
+              </div>
             </div>
           </div>
 
-          <div class="form-grid form-grid--4">
-            <div class="field">
-              <label class="label" for="age">Age <span class="unit">years</span></label>
-             <input class="input" type="number" id="age" name="age"
-              min="1" max="120" placeholder="Enter patient age" required />
-
-
+          <!-- BMI Calculator -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon section-icon--teal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">BMI Calculator </h2>
+                <p class="section-desc">Enter height and weight to calculate Body Mass Index automatically</p>
+              </div>
             </div>
-            <div class="field">
-              <label class="label" for="sex">Sex</label>
-              <select class="select" id="sex" name="sex" required>
-                <option value="" disabled selected>Select</option>
-                <option value="1">Male</option>
-                <option value="0">Female</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label" for="trestbps">Resting BP <span class="unit">mm Hg</span></label>
-              <input class="input" type="number" id="trestbps" name="trestbps"
-              min="1" max="300" placeholder="Enter resting blood pressure" required />
-
-                          </div>
-            <div class="field">
-              <label class="label" for="thalach">Max Heart Rate <span class="unit">bpm</span></label>
-              <input class="input" type="number" id="thalach" name="thalach"
-                min="1" max="300" placeholder="Enter maximum heart rate" required />
+            <div class="form-grid form-grid--3">
+              <div class="field">
+                <label class="label" for="height">Height <span class="unit">cm</span></label>
+                <input class="input" type="number" id="height" name="height"
+                  min="50" max="250" placeholder="Enter height" />
+              </div>
+              <div class="field">
+                <label class="label" for="weight">Weight <span class="unit">kg</span></label>
+                <input class="input" type="number" id="weight" name="weight"
+                  min="10" max="300" placeholder="Enter wait" />
+              </div>
+              <div class="field">
+                <label class="label">BMI Result</label>
+                <div class="bmi-display">
+                  <span class="bmi-value" id="bmi-value">—</span>
+                  <span class="bmi-category" id="bmi-category"></span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Demographics -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon section-icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">Demographics &amp; Vitals</h2>
+                <p class="section-desc">Basic patient information and vital measurements</p>
+              </div>
+            </div>
+            <div class="form-grid form-grid--4">
+              <div class="field">
+                <label class="label" for="age">Age </label>
+                <input class="input" type="number" id="age" name="age"
+                  min="1" max="120" placeholder="Enter patient age" required />
+              </div>
+              <div class="field">
+                <label class="label" for="sex">Sex</label>
+                <select class="select" id="sex" name="sex" required>
+                  <option value="" disabled selected>Select</option>
+                  <option value="1">Male</option>
+                  <option value="0">Female</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="trestbps">Resting BP <span class="unit">mm Hg</span></label>
+                <input class="input" type="number" id="trestbps" name="trestbps"
+                  min="1" max="300" placeholder="Enter resting blood pressure" required />
+              </div>
+              <div class="field">
+                <label class="label" for="thalach">Max Heart Rate <span class="unit">bpm</span></label>
+                <input class="input" type="number" id="thalach" name="thalach"
+                  min="1" max="300" placeholder="Enter maximum heart rate" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Symptoms & Lab -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon section-icon--teal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">Symptoms &amp; Lab Results</h2>
+                <p class="section-desc">Clinical symptoms and laboratory investigation values</p>
+              </div>
+            </div>
+            <div class="form-grid form-grid--3">
+              <div class="field">
+                <label class="label" for="cp">Chest Pain Type</label>
+                <select class="select" id="cp" name="cp" required>
+                  <option value="" disabled selected>Select type</option>
+                  <option value="1">Typical Angina</option>
+                  <option value="2">Atypical Angina</option>
+                  <option value="3">Non-Anginal Pain</option>
+                  <option value="4">Asymptomatic</option>
+                </select>
+                <span class="field-hint">Nature of chest pain reported</span>
+              </div>
+              <div class="field">
+                <label class="label" for="chol">Cholesterol <span class="unit">mg/dl</span></label>
+                <input class="input" type="number" id="chol" name="chol"
+                  min="1" max="700" placeholder="Enter serum cholesterol" required />
+              </div>
+              <div class="field">
+                <label class="label" for="fbs">Fasting Blood Sugar</label>
+                <select class="select" id="fbs" name="fbs" required>
+                  <option value="" disabled selected>Select</option>
+                  <option value="1">Yes </option>
+                  <option value="0">No </option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="exang">Exercise-Induced Angina</label>
+                <select class="select" id="exang" name="exang" required>
+                  <option value="" disabled selected>Select</option>
+                  <option value="1">Yes</option>
+                  <option value="0">No</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="oldpeak">ST Depression <span class="unit">oldpeak</span></label>
+                <input class="input" type="number" id="oldpeak" name="oldpeak"
+                  step="0.1" min="0" max="10" placeholder="Enter ST depression value" required />
+                <span class="field-hint">Induced by exercise relative to rest</span>
+              </div>
+              <div class="field">
+                <label class="label" for="slope">ST Segment Slope</label>
+                <select class="select" id="slope" name="slope" required>
+                  <option value="" disabled selected>Select</option>
+                  <option value="1">Upsloping</option>
+                  <option value="2">Flat</option>
+                  <option value="3">Downsloping</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: ECG & Imaging -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon section-icon--purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">ECG &amp; Imaging Results</h2>
+                <p class="section-desc">Electrocardiogram and fluoroscopy investigation results</p>
+              </div>
+            </div>
+            <div class="form-grid form-grid--3">
+              <div class="field">
+                <label class="label" for="restecg">Resting ECG Result</label>
+                <select class="select" id="restecg" name="restecg" required>
+                  <option value="" disabled selected>Select result</option>
+                  <option value="0">Normal</option>
+                  <option value="1">ST-T Wave Abnormality</option>
+                  <option value="2">LV Hypertrophy</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="ca">Major Vessels Coloured <span class="unit">0–3</span></label>
+                <select class="select" id="ca" name="ca" required>
+                  <option value="" disabled selected>Select count</option>
+                  <option value="0">0 vessels</option>
+                  <option value="1">1 vessel</option>
+                  <option value="2">2 vessels</option>
+                  <option value="3">3 vessels</option>
+                </select>
+                <span class="field-hint">By fluoroscopy</span>
+              </div>
+              <div class="field">
+                <label class="label" for="thal">Thalassemia</label>
+                <select class="select" id="thal" name="thal" required>
+                  <option value="" disabled selected>Select result</option>
+                  <option value="3">Normal</option>
+                  <option value="6">Fixed Defect</option>
+                  <option value="7">Reversible Defect</option>
+                </select>
+                <span class="field-hint">Nuclear stress test result</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input Preview Panel -->
+          <div class="form-section preview-section" id="preview-section" style="display:none;">
+            <div class="section-header">
+              <div class="section-icon section-icon--purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div>
+                <h2 class="section-title">Input Summary Preview</h2>
+                <p class="section-desc">Review all entered values before submitting for prediction</p>
+              </div>
+            </div>
+            <div class="summary-grid" id="summary-grid"></div>
+          </div>
+
+          <!-- Submit -->
+          <div class="submit-wrap">
+            <button type="button" class="btn-preview" onclick="previewInputs()">
+              <i class="fa-solid fa-eye"></i> Preview Inputs
+            </button>
+            <button type="submit" class="btn-predict" id="submit-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Analyse Heart Disease Risk
+            </button>
+          </div>
+
+        </form>
+
+        <!-- ── RESULT CARD ────────────────────────────────────────────────── -->
+        <div id="result-card" class="result-card result-card--hidden">
+
+          <div id="result-high" class="result-banner result-banner--high">
+            <div class="result-banner-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="result-label">Prediction Result</div>
+              <div class="result-verdict" id="verdict-high">High Risk of Heart Disease</div>
+            </div>
+          </div>
+
+          <div id="result-low" class="result-banner result-banner--low">
+            <div class="result-banner-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <div class="result-label">Prediction Result</div>
+              <div class="result-verdict" id="verdict-low">Low Risk of Heart Disease</div>
+            </div>
+          </div>
+
+          <div class="result-body">
+
+            <!-- Probability Bar -->
+            <div class="prob-wrap">
+              <div class="prob-label">Probability of Heart Disease</div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill" id="prob-bar"></div>
+              </div>
+              <div class="prob-value" id="prob-value">—</div>
+            </div>
+
+            <!-- BMI Result in card -->
+            <div id="bmi-result-wrap" class="bmi-result-wrap" style="display:none;">
+              <div class="bmi-result-label">BMI Result</div>
+              <div class="bmi-result-value" id="bmi-result-value">—</div>
+              <div class="bmi-result-cat" id="bmi-result-cat"></div>
+            </div>
+
+            <!-- Meta Cards -->
+            <div class="result-meta-grid">
+              <div class="meta-card">
+                <div class="meta-icon meta-icon--info">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div>
+                  <div class="meta-title">Model Used</div>
+                  <div class="meta-value">Random Forest (Champion)</div>
+                </div>
+              </div>
+              <div class="meta-card">
+                <div class="meta-icon meta-icon--success">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <div>
+                  <div class="meta-title">Validation</div>
+                  <div class="meta-value">10-Fold Cross-Validation</div>
+                </div>
+              </div>
+              <div class="meta-card">
+                <div class="meta-icon meta-icon--warning">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <div>
+                  <div class="meta-title">Dataset</div>
+                  <div class="meta-value">UCI Cleveland (303 records)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HIGH RISK Recommendations -->
+            <div id="advice-high" class="advice-section advice-section--high" style="display:none;">
+              <div class="advice-header">
+                <span class="advice-icon"><i class="fa-solid fa-circle-exclamation"></i></span>
+                <div>
+                  <h3 class="advice-title">High Risk — Immediate Action Required</h3>
+                  <p class="advice-subtitle">This patient's clinical parameters indicate elevated cardiovascular risk. Please take the following steps:</p>
+                </div>
+              </div>
+              <div class="rec-grid">
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-regular fa-eye"></i></div>
+                  <div class="rec-title">See a Cardiologist</div>
+                  <div class="rec-text">Schedule an urgent appointment with a heart specialist for further diagnostic testing and evaluation immediately.</div>
+                </div>
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-solid fa-stethoscope"></i></div>
+                  <div class="rec-title">Follow Medical Advice</div>
+                  <div class="rec-text">Take all prescribed medications as directed. Never stop any medication without first consulting your doctor.</div>
+                </div>
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-solid fa-ban-smoking"></i></div>
+                  <div class="rec-title">Stop Smoking</div>
+                  <div class="rec-text">Stop smoking immediately and reduce alcohol consumption. These significantly worsen cardiovascular risk.</div>
+                </div>
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-solid fa-bowl-rice"></i></div>
+                  <div class="rec-title">Diet Modification</div>
+                  <div class="rec-text">Reduce salt, saturated fats, and processed foods. Consult a dietitian for a personalised heart-healthy meal plan.</div>
+                </div>
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                  <div class="rec-title">Monitor Daily</div>
+                  <div class="rec-text">Monitor your blood pressure and heart rate every day. Keep a record to share with your doctor at each visit.</div>
+                </div>
+                <div class="rec-card rec-card--red">
+                  <div class="rec-icon"><i class="fa-solid fa-person-walking-with-cane"></i></div>
+                  <div class="rec-title">Light Activity Only</div>
+                  <div class="rec-text">Avoid strenuous exercise until cleared by a doctor. Light walking under medical supervision may be permitted.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LOW RISK Recommendations -->
+            <div id="advice-low" class="advice-section advice-section--low" style="display:none;">
+              <div class="advice-header">
+                <span class="advice-icon"><i class="fa-solid fa-comment-medical"></i></span>
+                <div>
+                  <h3 class="advice-title">Low Risk — Keep Up The Great Work!</h3>
+                  <p class="advice-subtitle">No significant indicators of heart disease detected. Here is how to maintain your excellent heart health:</p>
+                </div>
+              </div>
+              <div class="rec-grid">
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-burger"></i></div>
+                  <div class="rec-title">Heart-Healthy Foods</div>
+                  <div class="rec-text">Eat fruits, vegetables, whole grains, fish (salmon, mackerel), nuts, olive oil, oats, berries, and avocado daily.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-person-running"></i></div>
+                  <div class="rec-title">Stay Active</div>
+                  <div class="rec-text">Aim for at least 30 minutes of moderate exercise (walking, cycling, swimming) at least 5 days per week.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-droplet"></i></div>
+                  <div class="rec-title">Stay Hydrated</div>
+                  <div class="rec-text">Drink at least 8 glasses of water daily. Proper hydration supports healthy blood circulation and heart function.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-bed"></i></div>
+                  <div class="rec-title">Quality Sleep</div>
+                  <div class="rec-text">Aim for 7 to 9 hours of quality sleep per night. Poor sleep significantly increases cardiovascular risk over time.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-person-through-window"></i></div>
+                  <div class="rec-title">Manage Stress</div>
+                  <div class="rec-text">Practice relaxation techniques such as meditation, deep breathing, or yoga to keep chronic stress levels low.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon">🩺</div>
+                  <div class="rec-title">Regular Checkups</div>
+                  <div class="rec-text">Visit your doctor at least once a year for routine heart health screenings — even when you feel perfectly healthy.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-ban-smoking"></i></div>
+                  <div class="rec-title">Avoid Smoking</div>
+                  <div class="rec-text">If you smoke, quit immediately. Smoking significantly increases cardiovascular risk even in currently low-risk patients.</div>
+                </div>
+                <div class="rec-card rec-card--green">
+                  <div class="rec-icon"><i class="fa-solid fa-bowl-food"></i></div>
+                  <div class="rec-title">Daily Superfoods</div>
+                  <div class="rec-text">Garlic, dark chocolate (70%+), green tea, leafy greens (spinach, kale), and legumes all actively support heart health.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button class="btn-pdf" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> Download PDF Report</button>
+              <button class="btn-print" onclick="printResult()"><i class="fa-solid fa-print"></i> Print Result</button>
+              <button class="btn-reset" onclick="resetForm()">← Assess Another Patient</button>
+            </div>
+
           </div>
         </div>
 
-        <!-- Section 2: Symptoms & Lab -->
-        <div class="form-section">
+        <!-- ── HISTORY PANEL ──────────────────────────────────────────────── -->
+        <div id="history-panel" class="history-panel history-hidden">
+          <div class="history-header">
+            <h3 class="history-title"><i class="fa-solid fa-book"></i> Prediction History</h3>
+            <div class="history-actions">
+              <button class="btn-clear" onclick="clearHistory()">Clear All</button>
+              <button class="btn-close-history" onclick="toggleHistory()">✕ Close</button>
+            </div>
+          </div>
+          <div class="history-body" id="history-body">
+            <p class="history-empty">No predictions yet. Make your first prediction above.</p>
+          </div>
+        </div>
+
+      </div>
+      <!-- ══ END SINGLE PATIENT TAB ════════════════════════════════════════ -->
+
+      <!-- ══ MULTIPLE PATIENTS TAB ═════════════════════════════════════════ -->
+      <div id="bulk-tab-content" style="display:none;">
+
+        <!-- ── BULK UPLOAD SECTION ────────────────────────────────────────── -->
+        <div class="form-section bulk-section">
           <div class="section-header">
             <div class="section-icon section-icon--teal">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
             </div>
             <div>
-              <h2 class="section-title">Symptoms &amp; Lab Results</h2>
-              <p class="section-desc">Clinical symptoms and laboratory investigation values</p>
+              <h2 class="section-title">Bulk Patient Upload <span class="optional-badge">CSV</span></h2>
+              <p class="section-desc">Upload a CSV file to predict heart disease risk for multiple patients at once (max 100)</p>
             </div>
           </div>
 
-          <div class="form-grid form-grid--3">
-            <div class="field">
-              <label class="label" for="cp">Chest Pain Type</label>
-              <select class="select" id="cp" name="cp" required>
-                <option value="" disabled selected>Select type</option>
-                <option value="1">Typical Angina</option>
-                <option value="2">Atypical Angina</option>
-                <option value="3">Non-Anginal Pain</option>
-                <option value="4">Asymptomatic</option>
-              </select>
-              <span class="field-hint">Nature of chest pain reported</span>
-            </div>
-            <div class="field">
-              <label class="label" for="chol">Cholesterol <span class="unit">mg/dl</span></label>
-              <input class="input" type="number" id="chol" name="chol"
-                min="1" max="700" placeholder="Enter serum cholesterol" required />
+          <!-- Download template button -->
+          <div class="bulk-top">
+            <button type="button" class="btn-template" onclick="downloadTemplate()">
+              <i class="fa-solid fa-download"></i> Download CSV Template
+            </button>
+            <span class="bulk-hint">Download the template, fill in patient data, then upload below</span>
+          </div>
 
+          <!-- Upload area -->
+          <div class="upload-area" id="upload-area"
+               ondragover="event.preventDefault(); this.classList.add('upload-area--drag')"
+               ondragleave="this.classList.remove('upload-area--drag')"
+               ondrop="handleDrop(event)">
+            <div class="upload-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+            <div class="upload-text">Drag &amp; drop your CSV file here</div>
+            <div class="upload-or">or</div>
+            <label class="btn-browse" for="csv-file-input">Browse File</label>
+            <input type="file" id="csv-file-input" accept=".csv" style="display:none;"
+                   onchange="handleFileSelect(event)" />
+            <div class="upload-selected" id="upload-selected"></div>
+          </div>
+
+          <!-- Upload button -->
+          <div class="bulk-submit">
+            <button type="button" class="btn-bulk-predict" id="bulk-btn" onclick="submitBulk()" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              Run Bulk Prediction
+            </button>
+          </div>
+
+          <!-- Bulk Results -->
+          <div id="bulk-results" style="display:none;">
+            <div class="bulk-summary" id="bulk-summary"></div>
+            <div class="bulk-table-wrap">
+              <div class="bulk-table-header">
+                <h3 class="bulk-table-title">Prediction Results</h3>
+                <button class="btn-download-results" onclick="downloadBulkCSV()">
+                  <i class="fa-solid fa-download"></i> Download Results CSV
+                </button>
               </div>
-            <div class="field">
-              <label class="label" for="fbs">Fasting Blood Sugar</label>
-              <select class="select" id="fbs" name="fbs" required>
-                <option value="" disabled selected>Select</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label" for="exang">Exercise-Induced Angina</label>
-              <select class="select" id="exang" name="exang" required>
-                <option value="" disabled selected>Select</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label" for="oldpeak">ST Depression <span class="unit">oldpeak</span></label>
-              <input class="input" type="number" id="oldpeak" name="oldpeak"
-                  step="0.1" min="0" max="10" placeholder="Enter ST depression value" required />
+              <div class="table-scroll">
+                <table class="bulk-table" id="bulk-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Patient Name</th>
+                      <th>Age</th>
+                      <th>Sex</th>
+                      <th>Risk Level</th>
+                      <th>Probability</th>
+                      <th>Status</th>
+                      <th>Report</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bulk-table-body"></tbody>
+                </table>
               </div>
-            <div class="field">
-              <label class="label" for="slope">ST Segment Slope</label>
-              <select class="select" id="slope" name="slope" required>
-                <option value="" disabled selected>Select</option>
-                <option value="1">Upsloping</option>
-                <option value="2">Flat</option>
-                <option value="3">Downsloping</option>
-              </select>
             </div>
           </div>
+
         </div>
 
-        <!-- Section 3: ECG & Imaging -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-icon section-icon--purple">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div>
-              <h2 class="section-title">ECG &amp; Imaging Results</h2>
-              <p class="section-desc">Electrocardiogram and fluoroscopy investigation results</p>
-            </div>
-          </div>
-
-          <div class="form-grid form-grid--3">
-            <div class="field">
-              <label class="label" for="restecg">Resting ECG Result</label>
-              <select class="select" id="restecg" name="restecg" required>
-                <option value="" disabled selected>Select result</option>
-                <option value="0">Normal</option>
-                <option value="1">ST-T Wave Abnormality</option>
-                <option value="2">LV Hypertrophy</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label" for="ca">Major Vessels Coloured <span class="unit">0–3</span></label>
-              <select class="select" id="ca" name="ca" required>
-                <option value="" disabled selected>Select count</option>
-                <option value="0">0 vessels</option>
-                <option value="1">1 vessel</option>
-                <option value="2">2 vessels</option>
-                <option value="3">3 vessels</option>
-              </select>
-              <span class="field-hint">By fluoroscopy</span>
-            </div>
-            <div class="field">
-              <label class="label" for="thal">Thalassemia</label>
-              <select class="select" id="thal" name="thal" required>
-                <option value="" disabled selected>Select result</option>
-                <option value="3">Normal</option>
-                <option value="6">Fixed Defect</option>
-                <option value="7">Reversible Defect</option>
-              </select>
-              <span class="field-hint">Nuclear stress test result</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Submit -->
-        <div class="submit-wrap">
-          <button type="submit" class="btn-predict" id="submit-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            Analyse Heart Disease Risk
-          </button>
-          <p class="submit-note">All fields are required · Results appear below</p>
-        </div>
-
-      </form>
-
-      <!-- ── RESULT CARD ──────────────────────────────────────────────────── -->
-      <div id="result-card" class="result-card result-card--hidden">
-
-        <div id="result-high" class="result-banner result-banner--high">
-          <div class="result-banner-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <div>
-            <div class="result-label">Prediction Result</div>
-            <div class="result-verdict">High Risk of Heart Disease</div>
-          </div>
-        </div>
-
-        <div id="result-low" class="result-banner result-banner--low">
-          <div class="result-banner-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <div>
-            <div class="result-label">Prediction Result</div>
-            <div class="result-verdict">Low Risk of Heart Disease</div>
-          </div>
-        </div>
-
-        <div class="result-body">
-          <div class="prob-wrap">
-            <div class="prob-label">Probability of Heart Disease</div>
-            <div class="prob-bar-track">
-              <div class="prob-bar-fill" id="prob-bar"></div>
-            </div>
-            <div class="prob-value" id="prob-value">—</div>
-          </div>
-
-          <div class="result-meta-grid">
-            <div class="meta-card">
-              <div class="meta-icon meta-icon--info">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              </div>
-              <div>
-                <div class="meta-title">Model Used</div>
-                <div class="meta-value">Champion Model (Best F1-Score)</div>
-              </div>
-            </div>
-            <div class="meta-card">
-              <div class="meta-icon meta-icon--success">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              </div>
-              <div>
-                <div class="meta-title">Validation</div>
-                <div class="meta-value">10-Fold Cross-Validation</div>
-              </div>
-            </div>
-            <div class="meta-card">
-              <div class="meta-icon meta-icon--warning">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </div>
-              <div>
-                <div class="meta-title">Dataset</div>
-                <div class="meta-value">UCI Cleveland (303 records)</div>
-              </div>
-            </div>
-          </div>
-
-          <div id="advice-high" class="advice advice--high">
-            <strong>Clinical Recommendation:</strong> This patient's clinical parameters indicate elevated cardiovascular risk markers. It is strongly recommended to refer this patient to a cardiologist for further evaluation and diagnostic testing.
-          </div>
-
-          <div id="advice-low" class="advice advice--low">
-            <strong>Clinical Recommendation:</strong> No significant indicators of heart disease were detected based on the provided parameters. It is advised to maintain regular health check-ups and encourage a healthy lifestyle to sustain cardiovascular health.
-          </div>
-
-
-          <button class="btn-reset" onclick="resetForm()">
-            ← Assess Another Patient
-          </button>
-        </div>
       </div>
+      <!-- ══ END MULTIPLE PATIENTS TAB ════════════════════════════════════ -->
 
     </div>
   </main>
 
-<!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
-<footer class="footer">
-  <div class="container">
-    <p> Group 42 Final Year Project · BSc Computer Science</p>
-    <p>&copy; 2026 CardioPredict. All Rights Reserved.</p>
-  </div>
-</footer>
+  <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>Group 42 Final Year Project · BSc Computer Science</p>
+      <p>&copy; 2026 HeartPredict. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-  <!-- ── Particles.js ───────────────────────────────────────────────────── -->
+  <!-- Particles.js -->
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
     particlesJS('particles-bg', {
@@ -343,22 +630,8 @@
         shape: { type: "circle" },
         opacity: { value: 0.4, random: true },
         size: { value: 3, random: true },
-        line_linked: {
-          enable: true,
-          distance: 150,
-          color: "#4A9EDB",
-          opacity: 0.7,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 1.5,
-          direction: "none",
-          random: true,
-          straight: false,
-          out_mode: "out",
-          bounce: false
-        }
+        line_linked: { enable: true, distance: 150, color: "#4A9EDB", opacity: 0.7, width: 1 },
+        move: { enable: true, speed: 1.5, direction: "none", random: true, out_mode: "out", bounce: false }
       },
       interactivity: {
         detect_on: "canvas",
@@ -375,7 +648,6 @@
       retina_detect: true
     });
   </script>
-<!-- Toast Container -->
-<div class="toast-container" id="toast-container"></div>
+
 </body>
 </html>
