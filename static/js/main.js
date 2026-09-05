@@ -434,14 +434,10 @@ function downloadPDF() {
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   doc.text(`Probability  : ${res.probability}%`, 14, 148);
+  doc.text("Model        : SVM (Support Vector Machine)", 14, 156);
+  doc.text("Validation   : 5-Fold Stratified Cross-Validation", 14, 164);
   doc.text(
-    "Model        : Random Forest (Champion — F1: 89.05%, AUC: 95.10%)",
-    14,
-    156,
-  );
-  doc.text("Validation   : 10-Fold Stratified Cross-Validation", 14, 164);
-  doc.text(
-    "Dataset      : UCI Cleveland Heart Disease Dataset (303 records)",
+    "Dataset      : UCI Cleveland Heart Disease Dataset (302 records)",
     14,
     172,
   );
