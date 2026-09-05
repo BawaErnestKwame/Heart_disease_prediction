@@ -203,7 +203,7 @@ body {
   width: 100%;
   max-width: 260px;
   height: auto;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
 }
 
 @keyframes heartfloat {
@@ -311,12 +311,12 @@ body {
   border-radius: var(--radius-lg);
   padding: 28px 32px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.068);
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .form-section:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.145);
   transform: translateY(-1px);
 }
 
@@ -479,7 +479,7 @@ body {
 
 .btn-predict:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(24,95,165,0.3);
+  box-shadow: 0 2px 8px rgba(24,95,165,0.1);
 }
 
 .btn-predict:disabled {
