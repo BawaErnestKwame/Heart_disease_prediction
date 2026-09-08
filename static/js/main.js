@@ -61,7 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const summaryGrid = document.getElementById("summary-grid");
 
     const labels = {
-      patient_name: "Patient Name",
+      first_name: "First Name",
+      last_name: "Last Name",
       age: "Age (years)",
       sex: "Biological Sex",
       trestbps: "Resting BP (mm Hg)",
@@ -87,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
         3: "Non-Anginal Pain",
         4: "Asymptomatic",
       },
-      fbs: { 0: "No (≤120 mg/dl)", 1: "Yes (>120 mg/dl)" },
+      fbs: { 0: "No", 1: "Yes" },
       exang: { 0: "No", 1: "Yes" },
       slope: { 1: "Upsloping", 2: "Flat", 3: "Downsloping" },
       restecg: { 0: "Normal", 1: "ST-T Abnormality", 2: "LV Hypertrophy" },
@@ -138,7 +139,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Save inputs for PDF
     window.lastInputs = {
-      patient_name: document.getElementById("patient_name")?.value || "",
+      patient_name: (
+        (document.getElementById("first_name")?.value || "") +
+        " " +
+        (document.getElementById("last_name")?.value || "")
+      ).trim(),
       age: document.getElementById("age")?.value || "",
       sex: document.getElementById("sex")?.value === "1" ? "Male" : "Female",
       trestbps: document.getElementById("trestbps")?.value || "",
@@ -174,27 +179,111 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 
-  // ── Validate all fields ──────────────────────────────────────────────────
   function validateForm() {
     let valid = true;
-    const required = form.querySelectorAll("[required]");
-    required.forEach((input) => {
-      input.classList.remove("error");
-      if (!input.value || input.value === "") {
-        input.classList.add("error");
+
+    // Define all fields with their error messages
+    const fields = [
+      { id: "first_name", msg: "First name is required" },
+      { id: "last_name", msg: "Last name is required" },
+      {
+        id: "age",
+        msg: "Age is required",
+        number: true,
+        min: 1,
+        max: 150,
+        rangeMsg: "Age must be between 1 and 150",
+      },
+      { id: "sex", msg: "Please select biological sex" },
+      {
+        id: "trestbps",
+        msg: "Resting BP is required",
+        number: true,
+        min: 1,
+        max: 300,
+        rangeMsg: "Resting BP must be between 1 and 300",
+      },
+      {
+        id: "thalach",
+        msg: "Max Heart Rate is required",
+        number: true,
+        min: 1,
+        max: 300,
+        rangeMsg: "Max Heart Rate must be between 1 and 300",
+      },
+      { id: "cp", msg: "Please select chest pain type" },
+      {
+        id: "chol",
+        msg: "Cholesterol is required",
+        number: true,
+        min: 1,
+        max: 700,
+        rangeMsg: "Cholesterol must be between 1 and 700",
+      },
+      { id: "fbs", msg: "Please select fasting blood sugar" },
+      { id: "exang", msg: "Please select exercise-induced angina" },
+      {
+        id: "oldpeak",
+        msg: "ST Depression is required",
+        number: true,
+        min: 0,
+        max: 10,
+        rangeMsg: "ST Depression must be between 0.0 and 10.0",
+      },
+      { id: "slope", msg: "Please select ST slope" },
+      { id: "restecg", msg: "Please select resting ECG result" },
+      { id: "ca", msg: "Please select number of major vessels" },
+      { id: "thal", msg: "Please select thalassemia result" },
+    ];
+
+    // Clear all previous errors first
+    fields.forEach((f) => {
+      const el = document.getElementById(f.id);
+      const errorEl = document.getElementById(`error-${f.id}`);
+      if (el) el.classList.remove("error");
+      if (errorEl) errorEl.textContent = "";
+    });
+
+    let firstError = null;
+
+    fields.forEach((f) => {
+      const el = document.getElementById(f.id);
+      const errorEl = document.getElementById(`error-${f.id}`);
+      if (!el) return;
+
+      const val = el.value.trim();
+
+      // Check empty
+      if (!val) {
+        el.classList.add("error");
+        if (errorEl) errorEl.textContent = f.msg;
         valid = false;
+        if (!firstError) firstError = el;
+        return;
+      }
+
+      // Check number range
+      if (f.number) {
+        const num = parseFloat(val);
+        if (isNaN(num) || num < f.min || num > f.max) {
+          el.classList.add("error");
+          if (errorEl) errorEl.textContent = f.rangeMsg;
+          valid = false;
+          if (!firstError) firstError = el;
+        }
       }
     });
-    if (!valid) {
-      const firstError = form.querySelector(".error");
-      if (firstError)
-        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Scroll to first error
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
       showToast(
         "error",
-        "Missing Fields",
-        "Please fill in all required fields before submitting.",
+        "Validation Error",
+        "Please fix the highlighted fields.",
       );
     }
+
     return valid;
   }
 
@@ -216,9 +305,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const verdictHigh = document.getElementById("verdict-high");
     const verdictLow = document.getElementById("verdict-low");
     if (verdictHigh)
-      verdictHigh.textContent = `${name}  You have  Risk of Heart Disease`;
+      verdictHigh.textContent = `${name} , You have High Risk of Heart Disease`;
     if (verdictLow)
-      verdictLow.textContent = `${name}  You have Risk of Heart Disease`;
+      verdictLow.textContent = `${name} , You have Low Risk of Heart Disease`;
 
     // Probability bar
     probBar.className =
@@ -281,8 +370,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ── Clear errors on input change ─────────────────────────────────────────
   form.querySelectorAll("input, select").forEach((input) => {
-    input.addEventListener("change", () => input.classList.remove("error"));
-    input.addEventListener("input", () => input.classList.remove("error"));
+    input.addEventListener("change", () => {
+      input.classList.remove("error");
+      const errorEl = document.getElementById(`error-${input.id}`);
+      if (errorEl) errorEl.textContent = "";
+    });
+    input.addEventListener("input", () => {
+      input.classList.remove("error");
+      const errorEl = document.getElementById(`error-${input.id}`);
+      if (errorEl) errorEl.textContent = "";
+    });
   });
 
   // Load history on page start
@@ -381,7 +478,7 @@ function downloadPDF() {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("HeartPredict  Heart Disease Risk Report", 105, 13, {
+  doc.text("Heart Disease Risk Report", 105, 13, {
     align: "center",
   });
   doc.setFontSize(10);
@@ -512,12 +609,7 @@ function downloadPDF() {
   doc.rect(14, y, 182, 18, "F");
   doc.setFontSize(8);
   doc.setTextColor(107, 124, 138);
-  doc.text(
-    "DISCLAIMER: This report is generated by an academic research prototype (Group 42 Final Year Project).",
-    105,
-    y + 6,
-    { align: "center" },
-  );
+
   doc.text(
     "It does not constitute medical advice and must not replace professional clinical diagnosis.",
     105,
@@ -916,8 +1008,8 @@ function downloadPatientPDF(patient) {
   doc.setFont('helvetica', 'bold');
   doc.text(
     isHigh
-      ? ' HIGH RISK    Heart Disease Indicators Detected'
-      : 'LOW RISK    No Significant Indicators Found',
+      ? ' HIGH RISK  Of  Heart Disease Indicators Detected'
+      : 'LOW RISK,    No Significant Indicators Found',
     105, 120, { align: 'center' }
   );
 
@@ -925,9 +1017,12 @@ function downloadPatientPDF(patient) {
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.text(`Probability  : ${patient.probability}%`,                              14, 140);
-  doc.text('Model        : Random Forest (Champion : F1: 89.05%, AUC: 95.10%)', 14, 148);
-  doc.text('Validation   : 10-Fold Stratified Cross-Validation',                 14, 156);
-  doc.text('Dataset      : UCI Cleveland Heart Disease Dataset (303 records)',   14, 164);
+  doc.text("Model        : SVM (Support Vector Machine)", 14, 148);
+  doc.text("Validation   : 5-Fold Stratified Cross-Validation", 14, 156);
+  doc.text("Dataset      :  UCI Cleveland Heart Disease Dataset (302 records)",
+    14,
+    164,
+  );
 
   // ── Clinical Recommendation ───────────────────────────────────────────────
   let y = 178;
@@ -1002,10 +1097,7 @@ function downloadPatientPDF(patient) {
   doc.rect(14, y, 182, 18, 'F');
   doc.setFontSize(8);
   doc.setTextColor(107, 124, 138);
-  doc.text(
-    'DISCLAIMER: This report is generated by an academic research prototype (Group 42 Final Year Project).',
-    105, y + 6, { align: 'center' }
-  );
+  
   doc.text(
     'It does not constitute medical advice and must not replace professional clinical diagnosis.',
     105, y + 12, { align: 'center' }
