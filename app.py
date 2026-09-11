@@ -9,7 +9,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'cardiopredict_group42_secret'
 
-# ── Load model, scaler, and feature columns ──────────────────────────────
+# ── Load model, scaler, and feature columns 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 model    = joblib.load(os.path.join(BASE_DIR, 'heart_disease_model.pkl'))
 scaler   = joblib.load(os.path.join(BASE_DIR, 'scaler.pkl'))
@@ -22,20 +22,20 @@ prediction_history = []
 def index():
     return render_template('index.html')
 
-# ── SINGLE PATIENT PREDICTION ─────────────────────────────────────────────
+# SINGLE PATIENT PREDICTION 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.form
 
-        # ── Combine first and last name ───────────────────────────────────
+        #  Combine first and last name 
         first_name   = data.get('first_name', '').strip()
         last_name    = data.get('last_name', '').strip()
         patient_name = f"{first_name} {last_name}".strip()
         if not patient_name:
             patient_name = 'Unknown Patient'
 
-        # ── Get clinical inputs ───────────────────────────────────────────
+        # Get clinical inputs 
         age      = float(data['age'])
         sex      = float(data['sex'])
         cp       = float(data['cp'])
@@ -50,7 +50,7 @@ def predict():
         ca       = float(data['ca'])
         thal     = float(data['thal'])
 
-        # ── Input validation ──────────────────────────────────────────────
+        # Input validation 
         errors = []
         if not (1 <= age <= 150):
             errors.append("Age must be between 1 and 150")
@@ -65,7 +65,7 @@ def predict():
         if errors:
             return jsonify({'error': ' | '.join(errors)}), 400
 
-        # ── BMI calculation ───────────────────────────────────────────────
+        #  BMI calculation 
         height = float(data.get('height', 0) or 0)
         weight = float(data.get('weight', 0) or 0)
         bmi = bmi_category = None
@@ -77,12 +77,12 @@ def predict():
             elif bmi < 30:   bmi_category = 'Overweight'
             else:             bmi_category = 'Obese'
 
-        # ── Feature engineering ───────────────────────────────────────────
+        # ── Feature engineering 
         age_group = 0 if age < 40 else (1 if age <= 55 else 2)
         high_chol = 1 if chol > 240 else 0
         hr_ratio  = thalach / (220 - age)
 
-        # ── Build dataframe and scale ─────────────────────────────────────
+        # ── Build dataframe and scale 
         raw = pd.DataFrame([[
             age, sex, cp, trestbps, chol, fbs,
             restecg, thalach, exang, oldpeak,
@@ -181,12 +181,12 @@ def bulk_predict():
                 if not patient_name or patient_name == 'nan':
                     patient_name = f'Patient {idx + 1}'
 
-                # ── Feature engineering ───────────────────────────────────
+                # ── Feature engineering 
                 age_group = 0 if age < 40 else (1 if age <= 55 else 2)
                 high_chol = 1 if chol > 240 else 0
                 hr_ratio  = thalach / (220 - age)
 
-                # ── Build dataframe and scale ─────────────────────────────
+                #  Build dataframe and scale 
                 raw = pd.DataFrame([[
                     age, sex, cp, trestbps, chol, fbs,
                     restecg, thalach, exang, oldpeak,
@@ -194,7 +194,7 @@ def bulk_predict():
                 ]], columns=features)
                 raw[CONTINUOUS] = scaler.transform(raw[CONTINUOUS])
 
-                # ── Predict ───────────────────────────────────────────────
+                # ── Predict 
                 pred = model.predict(raw)[0]
                 prob = model.predict_proba(raw)[0][1]
 
@@ -251,7 +251,7 @@ def bulk_predict():
         return jsonify({'error': str(e)}), 400
 
 
-# ── HISTORY ROUTES ────────────────────────────────────────────────────────
+#  HISTORY ROUTES 
 @app.route('/history')
 def get_history():
     return jsonify(prediction_history[-10:])

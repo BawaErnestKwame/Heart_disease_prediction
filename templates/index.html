@@ -518,19 +518,7 @@
           </div>
         </div>
 
-        <!-- ── HISTORY PANEL ──────────────────────────────────────────────── -->
-        <div id="history-panel" class="history-panel history-hidden">
-          <div class="history-header">
-            <h3 class="history-title"><i class="fa-solid fa-book"></i> Prediction History</h3>
-            <div class="history-actions">
-              <button class="btn-clear" onclick="clearHistory()">Clear All</button>
-              <button class="btn-close-history" onclick="toggleHistory()">✕ Close</button>
-            </div>
-          </div>
-          <div class="history-body" id="history-body">
-            <p class="history-empty">No predictions yet. Make your first prediction above.</p>
-          </div>
-        </div>
+   
 
       </div>
       <!-- ══ END SINGLE PATIENT TAB ════════════════════════════════════════ -->
@@ -656,6 +644,22 @@
       retina_detect: true
     });
   </script>
+       <!-- ── HISTORY PANEL ──────────────────────────────────────────────── -->
+        <div id="history-panel" class="history-panel">
+          <div class="history-header">
+            <h3 class="history-title">Prediction History</h3>
+            <div class="history-actions">
+              <button class="btn-clear" onclick="clearHistory()">Clear All</button>
+              <button class="btn-close-history" onclick="toggleHistory()">✕ Close</button>
+            </div>
+          </div>
+          <div class="history-body" id="history-body">
+            <p class="history-empty">No predictions yet. Make your first prediction above.</p>
+          </div>
+        </div>
+
+  <!-- History Overlay -->
+<div class="history-overlay" id="history-overlay" onclick="toggleHistory()"></div>
 
 </body>
 </html>

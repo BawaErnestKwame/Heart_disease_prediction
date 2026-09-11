@@ -399,13 +399,22 @@ function resetForm() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ── History Panel ─────────────────────────────────────────────────────────
+// ── History Panel — slides from right ────────────────────────────────────
 function toggleHistory() {
-  const panel = document.getElementById("history-panel");
-  panel.classList.toggle("history-hidden");
-  if (!panel.classList.contains("history-hidden")) {
+  const panel   = document.getElementById('history-panel');
+  const overlay = document.getElementById('history-overlay');
+
+  const isOpen = panel.classList.contains('history-open');
+
+  if (isOpen) {
+    panel.classList.remove('history-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  } else {
+    panel.classList.add('history-open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
     loadHistory();
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
