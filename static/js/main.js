@@ -1,3 +1,7 @@
+// ════════════════════════════════════════════════════════════════════════════
+// HeartPredict - main.js
+// ════════════════════════════════════════════════════════════════════════════
+
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("prediction-form");
   const submitBtn = document.getElementById("submit-btn");
@@ -33,13 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
         cat = "Underweight";
         color = "#2196F3";
       } else if (bmi < 25) {
-        cat = "Normal ";
+        cat = "Normal";
         color = "#4CAF50";
       } else if (bmi < 30) {
-        cat = "Overweight ";
+        cat = "Overweight";
         color = "#FF9800";
       } else {
-        cat = "Obese ";
+        cat = "Obese";
         color = "#F44336";
       }
 
@@ -182,7 +186,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function validateForm() {
     let valid = true;
 
-    // Define all fields with their error messages
     const fields = [
       { id: "first_name", msg: "First name is required" },
       { id: "last_name", msg: "Last name is required" },
@@ -236,7 +239,6 @@ document.addEventListener("DOMContentLoaded", function () {
       { id: "thal", msg: "Please select thalassemia result" },
     ];
 
-    // Clear all previous errors first
     fields.forEach((f) => {
       const el = document.getElementById(f.id);
       const errorEl = document.getElementById(`error-${f.id}`);
@@ -253,7 +255,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const val = el.value.trim();
 
-      // Check empty
       if (!val) {
         el.classList.add("error");
         if (errorEl) errorEl.textContent = f.msg;
@@ -262,7 +263,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Check number range
       if (f.number) {
         const num = parseFloat(val);
         if (isNaN(num) || num < f.min || num > f.max) {
@@ -274,7 +274,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Scroll to first error
     if (firstError) {
       firstError.scrollIntoView({ behavior: "smooth", block: "center" });
       showToast(
@@ -295,13 +294,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.lastResult = data;
 
-    // Show/hide banners and advice
     resultHigh.style.display = isHigh ? "flex" : "none";
     resultLow.style.display = isHigh ? "none" : "flex";
     adviceHigh.style.display = isHigh ? "block" : "none";
     adviceLow.style.display = isHigh ? "none" : "block";
 
-    // Update patient name in result banner
     const verdictHigh = document.getElementById("verdict-high");
     const verdictLow = document.getElementById("verdict-low");
     if (verdictHigh)
@@ -309,13 +306,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (verdictLow)
       verdictLow.textContent = `${name} , You have Low Risk of Heart Disease`;
 
-    // Probability bar
     probBar.className =
       "prob-bar-fill " +
       (isHigh ? "prob-bar-fill--high" : "prob-bar-fill--low");
     probValue.textContent = prob + "%";
 
-    // BMI result
     if (data.bmi) {
       const bmiWrap = document.getElementById("bmi-result-wrap");
       const bmiVal = document.getElementById("bmi-result-value");
@@ -332,12 +327,10 @@ document.addEventListener("DOMContentLoaded", function () {
       probBar.style.width = prob + "%";
     }, 100);
 
-    // Confetti on low risk
     if (!isHigh) {
       launchConfetti();
     }
 
-    // Toast notification
     if (isHigh) {
       showToast(
         "high",
@@ -382,11 +375,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // HISTORY SEARCH LISTENER — attached here, after DOM is ready
+  // ══════════════════════════════════════════════════════════════════════════
+  const historySearchEl = document.getElementById("history-search");
+  if (historySearchEl) {
+    let debounceTimer;
+    historySearchEl.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(loadHistory, 300);
+    });
+    historySearchEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        clearTimeout(debounceTimer);
+        loadHistory();
+      }
+    });
+  }
+
   // Load history on page start
   loadHistory();
 });
 
-// ── Reset form ────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// FORM RESET
+// ════════════════════════════════════════════════════════════════════════════
 function resetForm() {
   document.getElementById("prediction-form").reset();
   document.getElementById("result-card").classList.add("result-card--hidden");
@@ -399,45 +412,48 @@ function resetForm() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ── History Panel — slides from right ────────────────────────────────────
-function toggleHistory() {
-  const panel   = document.getElementById('history-panel');
-  const overlay = document.getElementById('history-overlay');
-
-  const isOpen = panel.classList.contains('history-open');
-
-  if (isOpen) {
-    panel.classList.remove('history-open');
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  } else {
-    panel.classList.add('history-open');
-    overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    loadHistory();
-  }
-}
-
+// ════════════════════════════════════════════════════════════════════════════
+// HISTORY — Load with Search & Filters
+// ════════════════════════════════════════════════════════════════════════════
 function loadHistory() {
-  fetch("/history")
+  const searchEl = document.getElementById("history-search");
+  const riskEl = document.getElementById("history-risk-filter");
+  const dateEl = document.getElementById("history-date-filter");
+
+  const params = new URLSearchParams();
+  if (searchEl && searchEl.value.trim())
+    params.append("search", searchEl.value.trim());
+  if (riskEl && riskEl.value) params.append("risk", riskEl.value);
+  if (dateEl && dateEl.value) params.append("date", dateEl.value);
+
+  const url = params.toString() ? `/history?${params.toString()}` : "/history";
+
+  fetch(url)
     .then((res) => res.json())
     .then((data) => {
       const body = document.getElementById("history-body");
       if (!body) return;
+
       if (data.length === 0) {
-        body.innerHTML =
-          '<p class="history-empty">No predictions yet. Make your first prediction above.</p>';
+        const hasFilters = params.toString().length > 0;
+        body.innerHTML = hasFilters
+          ? `<p class="history-empty">
+               <i class="fa-solid fa-user-slash"></i>
+               No patient records match your search.
+             </p>`
+          : `<p class="history-empty">
+               <i class="fa-solid fa-clock-rotate-left"></i>
+               No predictions yet. Make your first prediction above.
+             </p>`;
         return;
       }
+
       let html = "";
-      data
-        .slice()
-        .reverse()
-        .forEach((record) => {
-          const cls =
-            record.risk_level === "HIGH" ? "history-high" : "history-low";
-          const icon = record.risk_level === "HIGH" ? "H" : "L";
-          html += `
+      data.forEach((record) => {
+        const cls =
+          record.risk_level === "HIGH" ? "history-high" : "history-low";
+        const icon = record.risk_level === "HIGH" ? "H" : "L";
+        html += `
           <div class="history-item ${cls}">
             <div class="history-left">
               <span class="history-icon">${icon}</span>
@@ -448,12 +464,20 @@ function loadHistory() {
             </div>
             <div class="history-prob">${record.probability}%</div>
           </div>`;
-        });
+      });
       body.innerHTML = html;
     })
     .catch((err) => console.error("History error:", err));
 }
 
+// ── Clear search input ───────────────────────────────────────────────────
+function clearHistorySearch() {
+  const searchEl = document.getElementById("history-search");
+  if (searchEl) searchEl.value = "";
+  loadHistory();
+}
+
+// ── Clear all history ────────────────────────────────────────────────────
 function clearHistory() {
   fetch("/clear-history", { method: "POST" }).then(() => {
     loadHistory();
@@ -465,7 +489,28 @@ function clearHistory() {
   });
 }
 
-// ── Download PDF Report ───────────────────────────────────────────────────
+// ── History Panel — slides from right ────────────────────────────────────
+function toggleHistory() {
+  const panel = document.getElementById("history-panel");
+  const overlay = document.getElementById("history-overlay");
+
+  const isOpen = panel.classList.contains("history-open");
+
+  if (isOpen) {
+    panel.classList.remove("history-open");
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+  } else {
+    panel.classList.add("history-open");
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+    loadHistory();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PDF DOWNLOAD — Single Patient
+// ════════════════════════════════════════════════════════════════════════════
 function downloadPDF() {
   if (!window.lastResult) {
     showToast("error", "No Result", "Please make a prediction first.");
@@ -481,22 +526,18 @@ function downloadPDF() {
   const time = new Date().toLocaleTimeString();
   const isHigh = res.prediction === 1;
 
-  // Header bar
   doc.setFillColor(12, 68, 124);
   doc.rect(0, 0, 210, 32, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("Heart Disease Risk Report", 105, 13, {
-    align: "center",
-  });
+  doc.text("Heart Disease Risk Report", 105, 13, { align: "center" });
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text("Group 42 · BSc Computer Science · Final Year Project", 105, 23, {
     align: "center",
   });
 
-  // Patient info
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
@@ -515,7 +556,6 @@ function downloadPDF() {
     doc.text(`BMI          : ${inp.bmi}`, 14, 94);
   }
 
-  // Result banner
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
   doc.text("Prediction Result", 14, 108);
@@ -548,7 +588,6 @@ function downloadPDF() {
     172,
   );
 
-  // Clinical values
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
   doc.text("Clinical Input Values", 14, 186);
@@ -577,7 +616,6 @@ function downloadPDF() {
     y += 10;
   });
 
-  // Recommendation
   y += 8;
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
@@ -612,13 +650,11 @@ function downloadPDF() {
     y += 8;
   });
 
-  // Disclaimer
   y += 6;
   doc.setFillColor(241, 244, 246);
   doc.rect(14, y, 182, 18, "F");
   doc.setFontSize(8);
   doc.setTextColor(107, 124, 138);
-
   doc.text(
     "It does not constitute medical advice and must not replace professional clinical diagnosis.",
     105,
@@ -734,20 +770,18 @@ function showToast(type, title, message) {
   }, 6000);
 }
 
-
 // ════════════════════════════════════════════════════════════════════════════
-// BULK UPLOAD FEATURE — paste this at the bottom of your main.js
+// BULK UPLOAD FEATURE
 // ════════════════════════════════════════════════════════════════════════════
 
-// Store selected file and bulk results
-let selectedBulkFile   = null;
-let bulkResultsData    = null;
+let selectedBulkFile = null;
+let bulkResultsData = null;
 
 // ── File drag and drop ────────────────────────────────────────────────────
 function handleDrop(event) {
   event.preventDefault();
-  const area = document.getElementById('upload-area');
-  area.classList.remove('upload-area--drag');
+  const area = document.getElementById("upload-area");
+  area.classList.remove("upload-area--drag");
   const file = event.dataTransfer.files[0];
   if (file) processFile(file);
 }
@@ -760,14 +794,14 @@ function handleFileSelect(event) {
 
 // ── Process selected file ─────────────────────────────────────────────────
 function processFile(file) {
-  if (!file.name.endsWith('.csv')) {
-    showToast('error', 'Wrong File Type', 'Please upload a CSV file only.');
+  if (!file.name.endsWith(".csv")) {
+    showToast("error", "Wrong File Type", "Please upload a CSV file only.");
     return;
   }
 
   selectedBulkFile = file;
 
-  const selectedDiv = document.getElementById('upload-selected');
+  const selectedDiv = document.getElementById("upload-selected");
   selectedDiv.innerHTML = `
     <div class="file-selected">
       <span class="file-icon"><i class="fa-brands fa-shirtsinbulk"></i></span>
@@ -777,37 +811,41 @@ function processFile(file) {
     </div>
   `;
 
-  document.getElementById('bulk-btn').disabled = false;
-  showToast('low', 'File Ready', `${file.name} selected and  Run Bulk Prediction.`);
+  document.getElementById("bulk-btn").disabled = false;
+  showToast(
+    "low",
+    "File Ready",
+    `${file.name} selected — Run Bulk Prediction.`,
+  );
 }
 
 // ── Remove selected file ──────────────────────────────────────────────────
 function removeFile() {
   selectedBulkFile = null;
-  document.getElementById('upload-selected').innerHTML = '';
-  document.getElementById('bulk-btn').disabled = true;
-  document.getElementById('csv-file-input').value = '';
-  document.getElementById('bulk-results').style.display = 'none';
+  document.getElementById("upload-selected").innerHTML = "";
+  document.getElementById("bulk-btn").disabled = true;
+  document.getElementById("csv-file-input").value = "";
+  document.getElementById("bulk-results").style.display = "none";
 }
 
 // ── Submit bulk prediction ────────────────────────────────────────────────
 function submitBulk() {
   if (!selectedBulkFile) {
-    showToast('error', 'No File', 'Please select a CSV file first.');
+    showToast("error", "No File", "Please select a CSV file first.");
     return;
   }
 
-  const btn = document.getElementById('bulk-btn');
-  btn.disabled  = true;
+  const btn = document.getElementById("bulk-btn");
+  btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Processing...';
 
   const formData = new FormData();
-  formData.append('csv_file', selectedBulkFile);
+  formData.append("csv_file", selectedBulkFile);
 
-  fetch('/bulk-predict', { method: 'POST', body: formData })
-    .then(res => res.json())
-    .then(data => {
-      btn.disabled  = false;
+  fetch("/bulk-predict", { method: "POST", body: formData })
+    .then((res) => res.json())
+    .then((data) => {
+      btn.disabled = false;
       btn.innerHTML = `
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -815,30 +853,33 @@ function submitBulk() {
         Run Bulk Prediction`;
 
       if (data.error) {
-        showToast('error', 'Upload Error', data.error);
+        showToast("error", "Upload Error", data.error);
         return;
       }
 
       bulkResultsData = data;
       displayBulkResults(data);
       loadHistory();
-      showToast('low', 'Bulk Complete', `${data.total} patients processed  ${data.high_count} high risk, ${data.low_count} low risk.`);
+      showToast(
+        "low",
+        "Bulk Complete",
+        `${data.total} patients processed — ${data.high_count} high risk, ${data.low_count} low risk.`,
+      );
     })
-    .catch(err => {
-      btn.disabled  = false;
-      btn.innerHTML = 'Run Bulk Prediction';
-      showToast('error', 'Error', 'Something went wrong. Please try again.');
+    .catch((err) => {
+      btn.disabled = false;
+      btn.innerHTML = "Run Bulk Prediction";
+      showToast("error", "Error", "Something went wrong. Please try again.");
       console.error(err);
     });
 }
 
 // ── Display bulk results ──────────────────────────────────────────────────
 function displayBulkResults(data) {
-  const resultsDiv = document.getElementById('bulk-results');
-  const summaryDiv = document.getElementById('bulk-summary');
-  const tableBody  = document.getElementById('bulk-table-body');
+  const resultsDiv = document.getElementById("bulk-results");
+  const summaryDiv = document.getElementById("bulk-summary");
+  const tableBody = document.getElementById("bulk-table-body");
 
-  // Summary cards
   summaryDiv.innerHTML = `
     <div class="bulk-stat-card bulk-stat-total">
       <div class="bulk-stat-num">${data.total}</div>
@@ -858,15 +899,14 @@ function displayBulkResults(data) {
     </div>
   `;
 
-  // Table rows
-  let rows = '';
-  data.results.forEach(r => {
-    const isHigh  = r.risk_level === 'HIGH';
-    const isError = r.risk_level === 'ERROR';
+  let rows = "";
+  data.results.forEach((r) => {
+    const isHigh = r.risk_level === "HIGH";
+    const isError = r.risk_level === "ERROR";
     const riskBadge = isError
       ? `<span class="risk-badge risk-badge--error">ERROR</span>`
       : isHigh
-        ? `<span class="risk-badge risk-badge--high">  HIGH</span>`
+        ? `<span class="risk-badge risk-badge--high">HIGH</span>`
         : `<span class="risk-badge risk-badge--low">LOW</span>`;
 
     rows += `
@@ -882,34 +922,41 @@ function displayBulkResults(data) {
             ? `<span class="status-error" title="${r.error_msg || ""}">Failed</span>`
             : `<span class="status-ok">Success</span>`
         }</td>
-<td>${
-      isError
-        ? `<span style="color:var(--gray-300)">—</span>`
-        : `<button class="btn-patient-pdf"
-       onclick='downloadPatientPDF(${JSON.stringify(r)})'>
-      <i class="fa-solid fa-file-arrow-down"></i> Download
-       </button>`
-    }</td>
+        <td>${
+          isError
+            ? `<span style="color:var(--gray-300)">—</span>`
+            : `<button class="btn-patient-pdf" onclick='downloadPatientPDF(${JSON.stringify(r)})'>
+                 <i class="fa-solid fa-file-arrow-down"></i> Download
+               </button>`
+        }</td>
       </tr>`;
   });
 
   tableBody.innerHTML = rows;
-  resultsDiv.style.display = 'block';
-  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  resultsDiv.style.display = "block";
+  resultsDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // ── Download results as CSV ───────────────────────────────────────────────
 function downloadBulkCSV() {
   if (!bulkResultsData) {
-    showToast('error', 'No Results', 'Please run a bulk prediction first.');
+    showToast("error", "No Results", "Please run a bulk prediction first.");
     return;
   }
 
   const rows = [
-    ['#', 'Patient Name', 'Age', 'Sex', 'Risk Level', 'Probability (%)', 'Status']
+    [
+      "#",
+      "Patient Name",
+      "Age",
+      "Sex",
+      "Risk Level",
+      "Probability (%)",
+      "Status",
+    ],
   ];
 
-  bulkResultsData.results.forEach(r => {
+  bulkResultsData.results.forEach((r) => {
     rows.push([
       r.row,
       r.patient_name,
@@ -917,225 +964,234 @@ function downloadBulkCSV() {
       r.sex,
       r.risk_level,
       r.probability,
-      r.status
+      r.status,
     ]);
   });
 
-  const csvContent = rows.map(r => r.join(',')).join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `HeartPredict_BulkResults_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+  const csvContent = rows.map((r) => r.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `HeartPredict_BulkResults_${new Date().toLocaleDateString().replace(/\//g, "-")}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('low', 'CSV Downloaded', 'Bulk results saved successfully.');
+  showToast("low", "CSV Downloaded", "Bulk results saved successfully.");
 }
 
 // ── Download CSV template ─────────────────────────────────────────────────
 function downloadTemplate() {
-  const headers = 'patient_name,age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal';
-  const example1 = 'John Doe,63,1,4,145,233,1,2,150,0,2.3,3,0,6';
-  const example2 = 'Jane Smith,54,0,2,130,204,0,0,172,0,1.4,2,0,3';
-  const example3 = 'Bob Adams,41,1,3,130,214,0,0,168,0,2.0,2,4,3';
+  const headers =
+    "patient_name,age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal";
+  const example1 = "John Doe,63,1,4,145,233,1,2,150,0,2.3,3,0,6";
+  const example2 = "Jane Smith,54,0,2,130,204,0,0,172,0,1.4,2,0,3";
+  const example3 = "Bob Adams,41,1,3,130,214,0,0,168,0,2.0,2,4,3";
   const notes = [
-    '',
-    '# COLUMN GUIDE:',
-    '# patient_name = Full name of patient',
-    '# age          = Age in years (1-120)',
-    '# sex          = 1=Male  0=Female',
-    '# cp           = Chest pain: 1=Typical Angina  2=Atypical Angina  3=Non-Anginal  4=Asymptomatic',
-    '# trestbps     = Resting blood pressure (mm Hg)',
-    '# chol         = Serum cholesterol (mg/dl)',
-    '# fbs          = Fasting blood sugar > 120: 1=Yes  0=No',
-    '# restecg      = Resting ECG: 0=Normal  1=ST-T Abnormality  2=LV Hypertrophy',
-    '# thalach      = Maximum heart rate achieved (bpm)',
-    '# exang        = Exercise induced angina: 1=Yes  0=No',
-    '# oldpeak      = ST depression (0.0 - 10.0)',
-    '# slope        = ST slope: 1=Upsloping  2=Flat  3=Downsloping',
-    '# ca           = Major vessels coloured (0-3)',
-    '# thal         = Thalassemia: 3=Normal  6=Fixed Defect  7=Reversible Defect'
-  ].join('\n');
+    "",
+    "# COLUMN GUIDE:",
+    "# patient_name = Full name of patient",
+    "# age          = Age in years (1-120)",
+    "# sex          = 1=Male  0=Female",
+    "# cp           = Chest pain: 1=Typical Angina  2=Atypical Angina  3=Non-Anginal  4=Asymptomatic",
+    "# trestbps     = Resting blood pressure (mm Hg)",
+    "# chol         = Serum cholesterol (mg/dl)",
+    "# fbs          = Fasting blood sugar > 120: 1=Yes  0=No",
+    "# restecg      = Resting ECG: 0=Normal  1=ST-T Abnormality  2=LV Hypertrophy",
+    "# thalach      = Maximum heart rate achieved (bpm)",
+    "# exang        = Exercise induced angina: 1=Yes  0=No",
+    "# oldpeak      = ST depression (0.0 - 10.0)",
+    "# slope        = ST slope: 1=Upsloping  2=Flat  3=Downsloping",
+    "# ca           = Major vessels coloured (0-3)",
+    "# thal         = Thalassemia: 3=Normal  6=Fixed Defect  7=Reversible Defect",
+  ].join("\n");
 
-  const csv  = [headers, example1, example2, example3, notes].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'HeartPredict_CSV_Template.csv';
+  const csv = [headers, example1, example2, example3, notes].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "HeartPredict_CSV_Template.csv";
   a.click();
   URL.revokeObjectURL(url);
-  showToast('low', 'Template Downloaded', 'Fill in the template and upload it back here.');
+  showToast(
+    "low",
+    "Template Downloaded",
+    "Fill in the template and upload it back here.",
+  );
 }
 
 // ── Download individual patient PDF from bulk results ─────────────────────
 function downloadPatientPDF(patient) {
   const { jsPDF } = window.jspdf;
-  const doc    = new jsPDF();
-  const isHigh = patient.risk_level === 'HIGH';
-  const date   = new Date().toLocaleDateString();
-  const time   = new Date().toLocaleTimeString();
+  const doc = new jsPDF();
+  const isHigh = patient.risk_level === "HIGH";
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
 
-  // ── Header ───────────────────────────────────────────────────────────────
   doc.setFillColor(12, 68, 124);
-  doc.rect(0, 0, 210, 32, 'F');
+  doc.rect(0, 0, 210, 32, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('HeartPredict  Clinical Recommendation Report', 105, 13, { align: 'center' });
+  doc.setFont("helvetica", "bold");
+  doc.text("HeartPredict  Clinical Recommendation Report", 105, 13, {
+    align: "center",
+  });
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Group 42 · BSc Computer Science · Final Year Project', 105, 23, { align: 'center' });
+  doc.setFont("helvetica", "normal");
+  doc.text("Group 42 · BSc Computer Science · Final Year Project", 105, 23, {
+    align: "center",
+  });
 
-  // ── Patient Info ──────────────────────────────────────────────────────────
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Patient Information', 14, 44);
+  doc.setFont("helvetica", "bold");
+  doc.text("Patient Information", 14, 44);
   doc.setDrawColor(12, 68, 124);
   doc.line(14, 46, 196, 46);
 
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
   doc.text(`Patient Name : ${patient.patient_name}`, 14, 54);
-  doc.text(`Age          : ${patient.age} years`,    14, 62);
-  doc.text(`Sex          : ${patient.sex}`,           14, 70);
-  doc.text(`Report Date  : ${date}`,                  14, 78);
-  doc.text(`Report Time  : ${time}`,                  14, 86);
+  doc.text(`Age          : ${patient.age} years`, 14, 62);
+  doc.text(`Sex          : ${patient.sex}`, 14, 70);
+  doc.text(`Report Date  : ${date}`, 14, 78);
+  doc.text(`Report Time  : ${time}`, 14, 86);
 
-  // ── Result Banner ─────────────────────────────────────────────────────────
   doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Prediction Result', 14, 100);
+  doc.setFont("helvetica", "bold");
+  doc.text("Prediction Result", 14, 100);
   doc.line(14, 102, 196, 102);
 
   if (isHigh) doc.setFillColor(163, 45, 45);
-  else        doc.setFillColor(15, 110, 86);
-  doc.roundedRect(14, 106, 182, 22, 3, 3, 'F');
+  else doc.setFillColor(15, 110, 86);
+  doc.roundedRect(14, 106, 182, 22, 3, 3, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont("helvetica", "bold");
   doc.text(
     isHigh
-      ? ' HIGH RISK  Of  Heart Disease Indicators Detected'
-      : 'LOW RISK,    No Significant Indicators Found',
-    105, 120, { align: 'center' }
+      ? "HIGH RISK  Heart Disease Indicators Detected"
+      : "LOW RISK   No Significant Indicators Found",
+    105,
+    120,
+    { align: "center" },
   );
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Probability  : ${patient.probability}%`,                              14, 140);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Probability  : ${patient.probability}%`, 14, 140);
   doc.text("Model        : SVM (Support Vector Machine)", 14, 148);
   doc.text("Validation   : 5-Fold Stratified Cross-Validation", 14, 156);
-  doc.text("Dataset      :  UCI Cleveland Heart Disease Dataset (302 records)",
+  doc.text(
+    "Dataset      : UCI Cleveland Heart Disease Dataset (302 records)",
     14,
     164,
   );
 
-  // ── Clinical Recommendation ───────────────────────────────────────────────
   let y = 178;
   doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Clinical Recommendation', 14, y);
+  doc.setFont("helvetica", "bold");
+  doc.text("Clinical Recommendation", 14, y);
   y += 4;
   doc.line(14, y, 196, y);
   y += 10;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
 
   if (isHigh) {
-    // HIGH RISK header box
     doc.setFillColor(252, 235, 235);
-    doc.rect(14, y - 4, 182, 14, 'F');
+    doc.rect(14, y - 4, 182, 14, "F");
     doc.setTextColor(163, 45, 45);
-    doc.setFont('helvetica', 'bold');
-    doc.text('HIGH RISK  Seek for  Immediate Medical Attention Required', 18, y + 4);
+    doc.setFont("helvetica", "bold");
+    doc.text("HIGH RISK  Immediate Medical Attention Required", 18, y + 4);
     y += 18;
 
     const recs = [
-      '1. See a cardiologist urgently for further evaluation and diagnostic testing.',
-      '2. Take all prescribed medications as directed  never stop without doctor approval.',
-      '3. Monitor blood pressure and heart rate daily and record the readings.',
-      '4. Reduce salt, saturated fats, fried foods, and processed food intake immediately.',
-      '5. Avoid all strenuous physical exercise until cleared by a medical professional.',
-      '6. Stop smoking immediately and reduce or eliminate alcohol consumption.',
-      '7. Attend all follow-up medical appointments without delay.',
-      '8. Contact emergency services immediately if chest pain, dizziness, or breathlessness occurs.'
+      "1. See a cardiologist urgently for further evaluation and diagnostic testing.",
+      "2. Take all prescribed medications as directed — never stop without doctor approval.",
+      "3. Monitor blood pressure and heart rate daily and record the readings.",
+      "4. Reduce salt, saturated fats, fried foods, and processed food intake immediately.",
+      "5. Avoid all strenuous physical exercise until cleared by a medical professional.",
+      "6. Stop smoking immediately and reduce or eliminate alcohol consumption.",
+      "7. Attend all follow-up medical appointments without delay.",
+      "8. Contact emergency services immediately if chest pain, dizziness, or breathlessness occurs.",
     ];
 
     doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
-    recs.forEach(rec => {
+    doc.setFont("helvetica", "normal");
+    recs.forEach((rec) => {
       doc.text(rec, 16, y);
       y += 9;
     });
-
   } else {
-    // LOW RISK header box
     doc.setFillColor(240, 253, 244);
-    doc.rect(14, y - 4, 182, 14, 'F');
+    doc.rect(14, y - 4, 182, 14, "F");
     doc.setTextColor(15, 110, 86);
-    doc.setFont('helvetica', 'bold');
-    doc.text(' LOW RISK  Maintain Your Heart Health', 18, y + 4);
+    doc.setFont("helvetica", "bold");
+    doc.text("LOW RISK  Maintain Your Heart Health", 18, y + 4);
     y += 18;
 
     const recs = [
-      '1. Eat a heart-healthy diet: fruits, vegetables, whole grains, fish, nuts, and olive oil.',
-      '2. Exercise at least 30 minutes per day, 5 days per week (walking, cycling, swimming).',
-      '3. Drink at least 8 glasses of water daily to support healthy blood circulation.',
-      '4. Sleep 7 to 9 hours per night — poor sleep increases cardiovascular risk over time.',
-      '5. Manage stress through meditation, deep breathing, yoga, or relaxation techniques.',
-      '6. Schedule annual health checkups to monitor your cardiovascular health.',
-      '7. Avoid smoking and limit alcohol consumption to protect your heart.',
-      '8. Heart superfoods to include daily: oats, berries, garlic, green tea, dark chocolate (70%+).'
+      "1. Eat a heart-healthy diet: fruits, vegetables, whole grains, fish, nuts, and olive oil.",
+      "2. Exercise at least 30 minutes per day, 5 days per week (walking, cycling, swimming).",
+      "3. Drink at least 8 glasses of water daily to support healthy blood circulation.",
+      "4. Sleep 7 to 9 hours per night — poor sleep increases cardiovascular risk over time.",
+      "5. Manage stress through meditation, deep breathing, yoga, or relaxation techniques.",
+      "6. Schedule annual health checkups to monitor your cardiovascular health.",
+      "7. Avoid smoking and limit alcohol consumption to protect your heart.",
+      "8. Heart superfoods to include daily: oats, berries, garlic, green tea, dark chocolate (70%+).",
     ];
 
     doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
-    recs.forEach(rec => {
+    doc.setFont("helvetica", "normal");
+    recs.forEach((rec) => {
       doc.text(rec, 16, y);
       y += 9;
     });
   }
 
-  // ── Disclaimer ────────────────────────────────────────────────────────────
   y += 8;
   doc.setFillColor(241, 244, 246);
-  doc.rect(14, y, 182, 18, 'F');
+  doc.rect(14, y, 182, 18, "F");
   doc.setFontSize(8);
   doc.setTextColor(107, 124, 138);
-  
   doc.text(
-    'It does not constitute medical advice and must not replace professional clinical diagnosis.',
-    105, y + 12, { align: 'center' }
+    "It does not constitute medical advice and must not replace professional clinical diagnosis.",
+    105,
+    y + 12,
+    { align: "center" },
   );
 
-  // ── Save ──────────────────────────────────────────────────────────────────
-  doc.save(`HeartPredict_${patient.patient_name.replace(/ /g, '_')}_Report.pdf`);
-  showToast('low', 'PDF Downloaded', `Clinical report for ${patient.patient_name} saved.`);
+  doc.save(
+    `HeartPredict_${patient.patient_name.replace(/ /g, "_")}_Report.pdf`,
+  );
+  showToast(
+    "low",
+    "PDF Downloaded",
+    `Clinical report for ${patient.patient_name} saved.`,
+  );
 }
 
 // ── Tab Switcher ──────────────────────────────────────────────────────────
 function switchTab(tab) {
-  const singleContent = document.getElementById('single-tab-content');
-  const bulkContent   = document.getElementById('bulk-tab-content');
-  const singleBtn     = document.getElementById('tab-single');
-  const bulkBtn       = document.getElementById('tab-bulk');
+  const singleContent = document.getElementById("single-tab-content");
+  const bulkContent = document.getElementById("bulk-tab-content");
+  const singleBtn = document.getElementById("tab-single");
+  const bulkBtn = document.getElementById("tab-bulk");
 
-  if (tab === 'single') {
-    singleContent.style.display = 'block';
-    bulkContent.style.display   = 'none';
-    singleBtn.classList.add('tab-btn--active');
-    bulkBtn.classList.remove('tab-btn--active');
+  if (tab === "single") {
+    singleContent.style.display = "block";
+    bulkContent.style.display = "none";
+    singleBtn.classList.add("tab-btn--active");
+    bulkBtn.classList.remove("tab-btn--active");
   } else {
-    singleContent.style.display = 'none';
-    bulkContent.style.display   = 'block';
-    bulkBtn.classList.add('tab-btn--active');
-    singleBtn.classList.remove('tab-btn--active');
+    singleContent.style.display = "none";
+    bulkContent.style.display = "block";
+    bulkBtn.classList.add("tab-btn--active");
+    singleBtn.classList.remove("tab-btn--active");
   }
 
-  // Scroll to top of main
-  document.querySelector('.main').scrollIntoView({ behavior: 'smooth' });
+  document.querySelector(".main").scrollIntoView({ behavior: "smooth" });
 }

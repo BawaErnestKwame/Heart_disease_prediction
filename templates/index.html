@@ -644,22 +644,58 @@
       retina_detect: true
     });
   </script>
-       <!-- ── HISTORY PANEL ──────────────────────────────────────────────── -->
-        <div id="history-panel" class="history-panel">
-          <div class="history-header">
-            <h3 class="history-title">Prediction History</h3>
-            <div class="history-actions">
-              <button class="btn-clear" onclick="clearHistory()">Clear All</button>
-              <button class="btn-close-history" onclick="toggleHistory()">✕ Close</button>
-            </div>
-          </div>
-          <div class="history-body" id="history-body">
-            <p class="history-empty">No predictions yet. Make your first prediction above.</p>
-          </div>
-        </div>
+ <!-- ── HISTORY PANEL ──────────────────────────────────────────────── -->
+<div id="history-panel" class="history-panel">
 
-  <!-- History Overlay -->
+  <!-- Header: title + buttons -->
+  <div class="history-header">
+    <h3 class="history-title">Prediction History</h3>
+    <div class="history-actions">
+      <button class="btn-clear" onclick="clearHistory()">Clear All</button>
+      <button class="btn-close-history" onclick="toggleHistory()">✕ Close</button>
+    </div>
+  </div>
+
+  <!-- Search & filters (BELOW header, ABOVE body) -->
+  <div class="history-search-wrap">
+    <div class="history-search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        id="history-search"
+        placeholder="Search patient name..."
+        autocomplete="off"
+      />
+      <button id="history-search-clear" onclick="clearHistorySearch()" title="Clear">✕</button>
+    </div>
+
+    <div class="history-filter-row">
+      <select id="history-risk-filter" onchange="loadHistory()">
+        <option value="">All Risk Levels</option>
+        <option value="HIGH">High Risk Only</option>
+        <option value="LOW">Low Risk Only</option>
+      </select>
+
+      <input
+        type="date"
+        id="history-date-filter"
+        onchange="loadHistory()"
+        title="Filter by date"
+      />
+    </div>
+  </div>
+
+  <!-- Scrollable results -->
+  <div class="history-body" id="history-body">
+    <p class="history-empty">No predictions yet. Make your first prediction above.</p>
+  </div>
+
+</div>
+
+<!-- History Overlay -->
 <div class="history-overlay" id="history-overlay" onclick="toggleHistory()"></div>
+
+
 
 </body>
 </html>

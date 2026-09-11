@@ -181,12 +181,12 @@ def bulk_predict():
                 if not patient_name or patient_name == 'nan':
                     patient_name = f'Patient {idx + 1}'
 
-                # ── Feature engineering 
+                # ── Feature engineering ───────────────────────────────────
                 age_group = 0 if age < 40 else (1 if age <= 55 else 2)
                 high_chol = 1 if chol > 240 else 0
                 hr_ratio  = thalach / (220 - age)
 
-                #  Build dataframe and scale 
+                # ── Build dataframe and scale ─────────────────────────────
                 raw = pd.DataFrame([[
                     age, sex, cp, trestbps, chol, fbs,
                     restecg, thalach, exang, oldpeak,
@@ -194,7 +194,7 @@ def bulk_predict():
                 ]], columns=features)
                 raw[CONTINUOUS] = scaler.transform(raw[CONTINUOUS])
 
-                # ── Predict 
+                # ── Predict ───────────────────────────────────────────────
                 pred = model.predict(raw)[0]
                 prob = model.predict_proba(raw)[0][1]
 
@@ -250,16 +250,30 @@ def bulk_predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-
-#  HISTORY ROUTES 
+# ── HISTORY ROUTES ────────────────────────────────────────────────────────
 @app.route('/history')
 def get_history():
-    return jsonify(prediction_history[-10:])
+    search_query = request.args.get('search', '').strip().lower()
+    risk_filter  = request.args.get('risk', '').strip().upper()
+    date_filter  = request.args.get('date', '').strip()
+
+    results = list(reversed(prediction_history))
+
+    if search_query:
+        results = [r for r in results if search_query in r['name'].lower()]
+    if risk_filter in ('HIGH', 'LOW'):
+        results = [r for r in results if r['risk_level'] == risk_filter]
+    if date_filter:
+        results = [r for r in results if r['date'] == date_filter]
+
+    return jsonify(results[:100])
+
 
 @app.route('/clear-history', methods=['POST'])
 def clear_history():
     prediction_history.clear()
     return jsonify({'success': True})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
